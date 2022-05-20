@@ -37,6 +37,14 @@ app.get('/store-cart', (req, res) => {
     res.render('store-cart')
 });
 
+app.get('/similar-users', (req, res) => {
+    res.render('similar-users')
+});
+
+app.get('/community-stats', (req, res) => {
+    res.render('community-stats')
+});
+
 // ---- Server Setup ----
 app.listen(3000, () => {
     console.log("Server set up to listen on port 3000.");
