@@ -10,9 +10,7 @@ const app = express();
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
-app.use("*/css", express.static("public/css"));
-app.use("*/img", express.static("public/img"));
-app.use("*/js", express.static("public/js"));
+app.use(express.static('public'))
 
 
 app.get('/', (req, res) => {
