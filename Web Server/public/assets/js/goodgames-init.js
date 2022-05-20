@@ -1,14 +1,4 @@
-/*!-----------------------------------------------------------------
-    Name: GoodGames - Game Portal / Store HTML Template
-    Version: 1.4.0
-    Author: nK
-    Website: https://nkdev.info/
-    Purchase: https://themeforest.net/item/goodgames-portal-store-html-gaming-template/17704593?ref=_nK
-    Support: https://nk.ticksy.com/
-    License: You must have a valid license purchased only from ThemeForest (the above link) in order to legally use the theme for your project.
-    Copyright 2018.
--------------------------------------------------------------------*/
-    /******/ (function(modules) { // webpackBootstrap
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
