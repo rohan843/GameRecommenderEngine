@@ -61,8 +61,6 @@ validator = Validator()
 rw_lock = rwlock.RWLockWrite()
 
 
-# TODO: Implement proper locking.
-
 def get_json_based_response(code: int, desc: str):
     """
     Returns a desired response with the required HTTP code and a description message. Can be used for error handling.
@@ -98,15 +96,15 @@ def get_user_game_recs():
             k = int(request.args.get('k'))
         except ValueError:
             return get_json_based_response(400, desc='Invalid value for k, recommendation count, provided.')
-
-    return jsonify(
-        {
-            'status': 200,
-            'message': 'Successfully found game recommendations',
-            'recommendations':
-                recommender.get_user_game_recs(uid, k)
-        }
-    )
+    with rw_lock.gen_rlock():
+        return jsonify(
+            {
+                'status': 200,
+                'message': 'Successfully found game recommendations',
+                'recommendations':
+                    recommender.get_user_game_recs(uid, k)
+            }
+        )
 
 
 @app.route('/user_user_rec', methods=['GET'])
@@ -128,16 +126,16 @@ def get_user_user_recs():
             k = int(request.args.get('k'))
         except ValueError:
             return get_json_based_response(400, desc='Invalid value for k, recommendation count, provided.')
-
-    return jsonify(
-        {
-            'status': 200,
-            'message': 'Successfully found similar users.',
-            'recommendations': [
-                recommender.get_user_user_recs(uid, k)
-            ]
-        }
-    )
+    with rw_lock.gen_rlock():
+        return jsonify(
+            {
+                'status': 200,
+                'message': 'Successfully found similar users.',
+                'recommendations': [
+                    recommender.get_user_user_recs(uid, k)
+                ]
+            }
+        )
 
 
 @app.route('/game_game_rec', methods=['GET'])
@@ -159,16 +157,16 @@ def get_game_game_recs():
             k = int(request.args.get('k'))
         except ValueError:
             return get_json_based_response(400, desc='Invalid value for k, recommendation count, provided.')
-
-    return jsonify(
-        {
-            'status': 200,
-            'message': 'Successfully found similar games.',
-            'recommendations': [
-                recommender.get_game_game_recs(game_id, k)
-            ]
-        }
-    )
+    with rw_lock.gen_rlock():
+        return jsonify(
+            {
+                'status': 200,
+                'message': 'Successfully found similar games.',
+                'recommendations': [
+                    recommender.get_game_game_recs(game_id, k)
+                ]
+            }
+        )
 
 
 @app.route('/genre_game_rec', methods=['GET'])
@@ -208,21 +206,21 @@ def get_genre_based_recs():
             k = int(request.args.get('k'))
         except ValueError:
             return get_json_based_response(400, desc='Invalid value for k, recommendation count, provided.')
-
-    return jsonify(
-        {
-            'status': 200,
-            'message': 'Successfully found similar games.',
-            'recommendations': [
-                recommender.get_games_by_genre(
-                    uid=uid,
-                    genres=genres.strip().split(','),
-                    merge_by_and=merge_by_and,
-                    k=k
-                )
-            ]
-        }
-    )
+    with rw_lock.gen_rlock():
+        return jsonify(
+            {
+                'status': 200,
+                'message': 'Successfully found similar games.',
+                'recommendations': [
+                    recommender.get_games_by_genre(
+                        uid=uid,
+                        genres=genres.strip().split(','),
+                        merge_by_and=merge_by_and,
+                        k=k
+                    )
+                ]
+            }
+        )
 
 
 @app.route('/refresh_model_data', methods=['POST'])
@@ -231,7 +229,10 @@ def refresh_model_data():
         return get_json_based_response(401, 'Password not provided.')
     pw = request.headers.get('pw')
     if validator.validate_model_refresh_password(pw):
-        recommender.refresh_model_data()
+        r1 = Recommender()
+        global recommender
+        with rw_lock.gen_wlock():
+            recommender = r1
         return get_json_based_response(200, 'Model successfully refreshed.')
     else:
         return get_json_based_response(401, 'Incorrect password provided.')
@@ -249,4 +250,4 @@ def method_not_allowed(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
