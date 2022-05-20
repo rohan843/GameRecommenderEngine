@@ -45,6 +45,11 @@ app.get('/community-stats', (req, res) => {
     res.render('community-stats')
 });
 
+//The 404 Route
+app.get('*', function (req, res) {
+    res.status(404).render('404');
+});
+
 // ---- Server Setup ----
 app.listen(3000, () => {
     console.log("Server set up to listen on port 3000.");
