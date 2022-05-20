@@ -12,9 +12,9 @@ app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
 app.use(express.static('public'))
 
-
+// ---- Server Routes ----
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+    res.render('index')
 });
 
 // ---- Server Setup ----
