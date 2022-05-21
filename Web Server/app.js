@@ -12,6 +12,26 @@ app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
 app.use(express.static('public'))
 
+// ---- Constants ----
+allGenres = [
+    {
+        title: 'Action',
+        genre_id: 2
+    },
+    {
+        title: 'Action',
+        genre_id: 2
+    },
+    {
+        title: 'Action',
+        genre_id: 3
+    },
+    {
+        title: 'Merge By OR',
+        genre_id: -1
+    },
+]
+
 // ---- Server Routes ----
 app.get('/', (req, res) => {
     res.render('index', {
@@ -302,13 +322,14 @@ app.get('/', (req, res) => {
                 img: 'assets/images/post-1.jpg',
                 rating: 3
             }
-        ]
+        ],
+        allGenres: allGenres
     })
 });
 
-app.get('/gallery', (req, res) => {
-    res.render('gallery')
-});
+// app.get('/gallery', (req, res) => {
+//     res.render('gallery')
+// });
 
 app.get('/store-product', (req, res) => {
     res.render('store-product', {
@@ -390,7 +411,8 @@ app.get('/store-product', (req, res) => {
             release: 2018,
             matureContent: 'Suitable for people aged 12 and over.',
             rating: 4,
-        }
+        },
+        allGenres: allGenres
     })
 });
 
@@ -562,7 +584,8 @@ app.get('/store', (req, res) => {
                 rating: 3,
                 price: '14.00'
             }
-        ]
+        ],
+        allGenres: allGenres
     })
 });
 
@@ -638,20 +661,7 @@ app.get('/store-catalog', (req, res) => {
                 genre_id: 1
             }
         ],
-        allGenres: [
-            {
-                title: 'Action',
-                genre_id: 2
-            },
-            {
-                title: 'Action',
-                genre_id: 2
-            },
-            {
-                title: 'Action',
-                genre_id: 3
-            },
-        ]
+        allGenres: allGenres
     })
 });
 
@@ -688,7 +698,8 @@ app.get('/store-cart', (req, res) => {
                 img: 'assets/images/product-2-xs.jpg',
                 price: '32.00'
             },
-        ]
+        ],
+        allGenres: allGenres
     })
 });
 
@@ -715,14 +726,16 @@ app.get('/similar-users', (req, res) => {
                 genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
                 age: 32
             }
-        ]
+        ],
+        allGenres: allGenres
     })
 });
 
 app.get('/community-stats', (req, res) => {
     res.render('community-stats', { 
         gameCount: 28256, 
-        gamerCount: 50 
+        gamerCount: 50,
+        allGenres: allGenres
     })
 });
 

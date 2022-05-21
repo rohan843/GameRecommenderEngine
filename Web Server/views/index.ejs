@@ -56,6 +56,13 @@
     <!-- jQuery -->
     <script src="assets/vendor/jquery/dist/jquery.min.js"></script>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
 </head>
 
@@ -571,36 +578,36 @@
                         <!-- END: Best Selling -->
 
                         <!-- START: Latest Pictures -->
-                        <div class="nk-gap-3"></div>
+                        <!-- <div class="nk-gap-3"></div>
                         <h2 class="nk-decorated-h-2 h3"><span><span class="text-main-1">Latest</span> Pictures</span>
                         </h2>
                         <div class="nk-gap"></div>
                         <div class="nk-popup-gallery">
                             <div class="row vertical-gap">
 
-                                <% for( let i=0; i < latestPics.length; i++ ) { %>
+                                <%# for( let i=0; i < latestPics.length; i++ ) { %>
 
                                     <div class="col-lg-4 col-md-6">
                                         <div class="nk-gallery-item-box">
-                                            <a href="<%- latestPics[i].imgLink %>" class="nk-gallery-item"
-                                                data-size="<%- latestPics[i].imgSize %>">
+                                            <a href="<%#- latestPics[i].imgLink %>" class="nk-gallery-item"
+                                                data-size="<%#- latestPics[i].imgSize %>">
                                                 <div class="nk-gallery-item-overlay"><span class="ion-eye"></span></div>
-                                                <img src="<%- latestPics[i].thumbnailLink %>" alt="">
+                                                <img src="<%#- latestPics[i].thumbnailLink %>" alt="">
                                             </a>
-                                            <% if (latestPics[i].descHead || latestPics[i].desc) { %>
+                                            <%# if (latestPics[i].descHead || latestPics[i].desc) { %>
                                                 <div class="nk-gallery-item-description">
                                                     <h4>
-                                                        <%- latestPics[i].descHead %>
+                                                        <%#- latestPics[i].descHead %>
                                                     </h4>
-                                                    <%- latestPics[i].desc %>
+                                                    <%#- latestPics[i].desc %>
                                                 </div>
-                                                <% } %>
+                                                <%# } %>
                                         </div>
                                     </div>
 
-                                    <% } %>
+                                    <%# } %>
                             </div>
-                        </div>
+                        </div> -->
                         <!-- END: Latest Pictures -->
 
                     </div>
@@ -761,6 +768,15 @@
 
 
                 <!-- START: Scripts -->
+
+                <script>
+                    $(".chosen-select").chosen({
+                        no_results_text: "Oops, nothing found!"
+                    })
+                    $(".js-example-basic-multiple").select2({
+                        placeholder: "Search by genres"
+                    });
+                </script>
 
                 <!-- Object Fit Polyfill -->
                 <script src="assets/vendor/object-fit-images/dist/ofi.min.js"></script>

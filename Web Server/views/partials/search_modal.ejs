@@ -7,22 +7,20 @@
                     <span class="ion-android-close"></span>
                 </button>
 
-                <h4 class="mb-0">Search</h4>
+                <h4 class="mb-0">Search by genres</h4>
 
                 <div class="nk-gap-1"></div>
                 <form action="#" class="nk-form nk-form-style-1">
                     <!-- <input type="text" value="" name="search" class="form-control"
                         placeholder="Type any genre..." autofocus> -->
                     <div class="input-group">
-                        <select name="select" class="form-control">
-                            <option value="" disabled selected>Select a Genre</option>
-                            <option value="1">Russian Federation</option>
-                            <option value="2">USA</option>
-                            <option value="3">United Kingdom</option>
-                            <option value="4">France</option>
-                            <option value="5">Spain</option>
-                            <option value="6">Germany</option>
-                        </select><button class="nk-btn nk-btn-color-main-1"><span class="ion-search"></span></button>
+                        <select name="select" class="form-control" multiple>
+                            <option value="" disabled selected>Select Genres (use CTRL to choose multiple)</option>
+                            <% for( let i=0; i < allGenres.length; i++ ) { %>
+                                <option value="<%- allGenres[i].genre_id %>"><%- allGenres[i].title %></option>
+                            <% } %>
+                        </select>
+                        <button class="nk-btn nk-btn-color-main-1"><span class="ion-search"></span></button>
                     </div>
                 </form>
             </div>
@@ -30,3 +28,18 @@
     </div>
 </div>
 <!-- END: Search Modal -->
+
+<!-- <div class="nk-widget">
+    <div class="nk-widget-content">                                    
+        <form action="#" class="nk-form nk-form-style-1" novalidate="novalidate">
+            <div class="input-group">
+                <select name="select" class="form-control js-example-basic-multiple" multiple="multiple">
+                    <%# for( let i = 0; i < allGenres.length; i++ ) { %>
+                        <option value="<%#- allGenres[i].genre_id %>"><%#- allGenres[i].title %></option>
+                    <%# } %>
+                </select><button class="nk-btn nk-btn-color-main-1"><span
+                        class="ion-search"></span></button>
+            </div>
+        </form>
+    </div>
+</div> -->
