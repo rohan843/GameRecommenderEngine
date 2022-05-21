@@ -103,51 +103,30 @@
                         <table class="table nk-store-cart-products">
                             <tbody>
 
-                                <tr>
-                                    <td class="nk-product-cart-thumb">
-                                        <a href="/store-product" class="nk-image-box-1 nk-post-image">
-                                            <img src="assets/images/product-2-xs.jpg" alt="However, I have reason"
-                                                width="115">
-                                        </a>
-                                    </td>
-                                    <td class="nk-product-cart-title">
-                                        <h5 class="h6">Product:</h5>
-                                        <div class="nk-gap-1"></div>
+                                <% for( let i = 0; i < games.length; i++ ) { %>                                
+                                    <tr>
+                                        <td class="nk-product-cart-thumb">
+                                            <a href="/store-product" class="nk-image-box-1 nk-post-image">
+                                                <img src="<%- games[i].img %>" alt="<%- games[i].title %>"
+                                                    width="115">
+                                            </a>
+                                        </td>
+                                        <td class="nk-product-cart-title">
+                                            <h5 class="h6">Product:</h5>
+                                            <div class="nk-gap-1"></div>
 
-                                        <h2 class="nk-post-title h4">
-                                            <a href="/store-product">However, I have reason</a>
-                                        </h2>
-                                    </td>
-                                    <td class="nk-product-cart-price">
-                                        <h5 class="h6">Price:</h5>
-                                        <div class="nk-gap-1"></div>
+                                            <h2 class="nk-post-title h4">
+                                                <a href="/store-product"><%- games[i].title %></a>
+                                            </h2>
+                                        </td>
+                                        <td class="nk-product-cart-price">
+                                            <h5 class="h6">Price:</h5>
+                                            <div class="nk-gap-1"></div>
 
-                                        <strong>€ 32.00</strong>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="nk-product-cart-thumb">
-                                        <a href="/store-product" class="nk-image-box-1 nk-post-image">
-                                            <img src="assets/images/product-4-xs.jpg" alt="She was bouncing"
-                                                width="115">
-                                        </a>
-                                    </td>
-                                    <td class="nk-product-cart-title">
-                                        <h5 class="h6">Product:</h5>
-                                        <div class="nk-gap-1"></div>
-
-                                        <h2 class="nk-post-title h4">
-                                            <a href="/store-product">She was bouncing</a>
-                                        </h2>
-                                    </td>
-                                    <td class="nk-product-cart-price">
-                                        <h5 class="h6">Price:</h5>
-                                        <div class="nk-gap-1"></div>
-
-                                        <strong>€ 20.00</strong>
-                                    </td>
-                                </tr>
+                                            <strong>$ <%- games[i].price %></strong>
+                                        </td>
+                                    </tr>
+                                <% } %>
 
                             </tbody>
                         </table>
