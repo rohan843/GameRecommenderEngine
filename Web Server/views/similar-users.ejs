@@ -94,29 +94,32 @@
 
                 <!-- START: Forums List -->
                 <ul class="nk-forum">
-                    <li>
-                        <div class="nk-forum-icon">
-                            <span class="ion-ios-game-controller-b"></span>
-                        </div>
-                        <div class="nk-forum-title">
-                            <h3><a href="">User 27</a></h3>
-                            <div class="nk-forum-title-sub">Likes: Early Access, Japanese, Turkish</div>
-                        </div>
-                        <div class="nk-forum-count">
-                            Celebrated 32 birthdays
-                        </div>
-                        <div class="nk-forum-activity-avatar">
-                            <img src="assets/images/avatar-1.jpg" alt="Hitman">
-                        </div>
-                        <div class="nk-forum-activity">
-                            <div class="nk-forum-activity-title" title="Let the dice decide your fate… or at least help you pretend it did">
-                                Let the dice decide your fate… or at least help you pretend it did
+                    <% for( let i=0; i < users.length; i++ ) { %>
+                        <li>
+                            <div class="nk-forum-icon">
+                                <span class="ion-ios-game-controller-b"></span>
                             </div>
-                            <div class="nk-forum-activity-date">
-                                September 11, 2018
+                            <div class="nk-forum-title">
+                                <h3><a href="">User <%- users[i].id %></a></h3>
+                                <div class="nk-forum-title-sub">Likes: <%- users[i].genres %></div>
                             </div>
-                        </div>
-                    </li>
+                            <div class="nk-forum-count">
+                                Celebrated <%- users[i].age %> birthdays
+                            </div>
+                            <div class="nk-forum-activity-avatar">
+                                <img src="assets/images/avatar-1.jpg" alt="Hitman">
+                            </div>
+                            <div class="nk-forum-activity">
+                                <div class="nk-forum-activity-title"
+                                    title="Let the dice decide your fate… or at least help you pretend it did">
+                                    Let the dice decide your fate… or at least help you pretend it did
+                                </div>
+                                <div class="nk-forum-activity-date">
+                                    September 11, 2018
+                                </div>
+                            </div>
+                        </li>
+                    <% } %>
                 </ul>
                 <!-- END: Forums List -->
 
