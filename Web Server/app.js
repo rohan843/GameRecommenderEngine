@@ -1,11 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
-const mongoose = require('mongoose');
 
 const app = express();
 
 // ---- Database Related Work ----
+url = 'mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/'
+
 
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
