@@ -3,6 +3,8 @@ const express = require('express');
 const parser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieHandler = require('./Utilities/cookieHandler.js');
+const MongoClient = require('mongodb').MongoClient;
+
 
 // ---- Constants ----
 const allGenres = [
@@ -29,7 +31,7 @@ const maxUID = 49
 const app = express();
 
 // ---- Database Related Work ----
-
+const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
 
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
@@ -38,7 +40,7 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 // ---- Server Routes ----
-app.get('/', (req, res) => {    
+app.get('/', (req, res) => {
     res.render('index', {
         bestSeller: [
             {
@@ -335,89 +337,103 @@ app.get('/', (req, res) => {
 });
 
 app.get('/store-product', (req, res) => {
-    res.render('store-product', {
-        genreCategories: [
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            }
-        ],
-        otherUserLikes: [
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-        ],
-        relatedProducts: [
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            },
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            },
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            }
-        ],
-        mainProductDesc: {
-            id: 0,
-            name: 'JUST THEN HER HEAD',
-            platformSpecs: 'Windows 10 or above.',
-            price: '32.00',
-            desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone; yesterday I was at home, in the sweet company of a sister, whom I shall ever, ever cherish! I was awakened at daybreak by the charwoman, and having arrived at the inn, was at first placed inside the coach. But, when we got to a place called Leakington. Now the races of these two have been for some ages utterly extinct.',
-            tags: ['blizzard', 'action', 'MMO'].join(', '),
-            genres: ['online', 'FPS', 'MMO', 'Action games'].join(', '),
-            release: 2018,
-            matureContent: 'Suitable for people aged 12 and over.',
-            rating: 4,
-        },
-        allGenres: allGenres,
-        maxUID: maxUID,
-        minUID: minUID,
+
+    const game_id = 10;
+
+    MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        const recommenderDB = db.db("recommenderDB");
+        recommenderDB.collection("allGameData").findOne({id: game_id}, function (err, resultAlldata) {
+            if (err) throw err;
+            recommenderDB.collection("gameFeatures").findOne({id: game_id}, function (err, featureData) {
+                if(err) throw err;
+                res.render('store-product', {
+                    genreCategories: [
+                        {
+                            name: 'Action',
+                            genre_id: 1
+                        },
+                        {
+                            name: 'Action',
+                            genre_id: 1
+                        },
+                        {
+                            name: 'Action',
+                            genre_id: 1
+                        },
+                        {
+                            name: 'Action',
+                            genre_id: 1
+                        },
+                        {
+                            name: 'Action',
+                            genre_id: 1
+                        }
+                    ],
+                    otherUserLikes: [
+                        {
+                            title: 'So saying he unbuckled',
+                            rating: 4,
+                            price: '23.00',
+                        },
+                        {
+                            title: 'So saying he unbuckled',
+                            rating: 4,
+                            price: '23.00',
+                        },
+                        {
+                            title: 'So saying he unbuckled',
+                            rating: 4,
+                            price: '23.00',
+                        },
+                        {
+                            title: 'So saying he unbuckled',
+                            rating: 4,
+                            price: '23.00',
+                        },
+                    ],
+                    relatedProducts: [
+                        {
+                            img: 'assets/images/product-11-xs.jpg',
+                            title: 'She gave my mother',
+                            rating: 3,
+                            price: '24.00',
+                            id: 2
+                        },
+                        {
+                            img: 'assets/images/product-11-xs.jpg',
+                            title: 'She gave my mother',
+                            rating: 3,
+                            price: '24.00',
+                            id: 2
+                        },
+                        {
+                            img: 'assets/images/product-11-xs.jpg',
+                            title: 'She gave my mother',
+                            rating: 3,
+                            price: '24.00',
+                            id: 2
+                        }
+                    ],
+                    mainProductDesc: {
+                        id: resultAlldata.id,
+                        name: resultAlldata.name,
+                        platformSpecs: resultAlldata.recommended_requirements,
+                        price: (resultAlldata.discount_price && resultAlldata.discount_price.slice(1)) || (resultAlldata.original_price && resultAlldata.original_price.slice(1)) || featureData.price,
+                        desc: resultAlldata.game_description.slice(0, 500) + '...',
+                        tags: (resultAlldata.popular_tags && resultAlldata.popular_tags.slice(0, 100) + '...') || '',
+                        genres: (resultAlldata.genre && resultAlldata.genre.slice(0, 100) + '...') || '',
+                        release: resultAlldata.release_date_y,
+                        matureContent: (resultAlldata.mature_content && resultAlldata.mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
+                        rating: featureData.rating,
+                    },
+                    allGenres: allGenres,
+                    maxUID: maxUID,
+                    minUID: minUID,
+                });
+                db.close();
+            });
+        });
     });
 });
 
