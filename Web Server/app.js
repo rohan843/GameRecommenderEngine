@@ -38,10 +38,7 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 // ---- Server Routes ----
-app.get('/', (req, res) => {
-    
-    console.log(cookieHandler.getUid(req.cookies));
-    
+app.get('/', (req, res) => {    
     res.render('index', {
         bestSeller: [
             {
