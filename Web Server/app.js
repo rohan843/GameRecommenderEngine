@@ -1,8 +1,27 @@
 require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
-import * as CookieHandler from "Utilities/cookieHandler.mjs";
-import { allGenres } from "./Utilities/constants.mjs";
+const cookieParser = require('cookie-parser');
+
+// ---- Constants ----
+allGenres = [
+    {
+        title: 'Action',
+        genre_id: 2
+    },
+    {
+        title: 'Action',
+        genre_id: 2
+    },
+    {
+        title: 'Action',
+        genre_id: 3
+    },
+    {
+        title: 'Merge By OR',
+        genre_id: -1
+    },
+];
 
 const app = express();
 
@@ -12,6 +31,7 @@ const app = express();
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(express.static('public'));
 
 // ---- Server Routes ----
@@ -384,7 +404,7 @@ app.get('/store-product', (req, res) => {
             platformSpecs: 'Windows 10 or above.',
             price: '32.00',
             desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone; yesterday I was at home, in the sweet company of a sister, whom I shall ever, ever cherish! I was awakened at daybreak by the charwoman, and having arrived at the inn, was at first placed inside the coach. But, when we got to a place called Leakington. Now the races of these two have been for some ages utterly extinct.',
-            tags: [ 'blizzard', 'action', 'MMO'].join(', '),
+            tags: ['blizzard', 'action', 'MMO'].join(', '),
             genres: ['online', 'FPS', 'MMO', 'Action games'].join(', '),
             release: 2018,
             matureContent: 'Suitable for people aged 12 and over.',
@@ -710,8 +730,8 @@ app.get('/similar-users', (req, res) => {
 });
 
 app.get('/community-stats', (req, res) => {
-    res.render('community-stats', { 
-        gameCount: 28256, 
+    res.render('community-stats', {
+        gameCount: 28256,
         gamerCount: 50,
         allGenres: allGenres
     })
