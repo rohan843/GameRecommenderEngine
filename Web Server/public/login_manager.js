@@ -20,7 +20,7 @@ function getCookie(cname) {
     return null;
 }
 
-function showToast(msg) {
+function showToast(msg, time = 3000) {
     // Get the snackbar DIV
     const x = document.getElementById("snackbar");
     x.innerText = msg;
@@ -29,33 +29,58 @@ function showToast(msg) {
     x.className = "show";
 
     // After 3 seconds, remove the show class from DIV
-    setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
-}
-
-if (getCookie('uid') == null || getCookie('uid') == -1) {
-    setCookie('uid', -1);
-    showToast('Please login for viewing personalized recommendations')
-} else {
-    showToast(`Welcome user ${getCookie('uid')}`)
+    setTimeout(function () { x.className = x.className.replace("show", ""); }, time);
 }
 
 loginForm = document.getElementById('login');
+logoutLink = document.getElementById('logout');
 uid = document.getElementById('uid');
+signinCloseBtn = document.getElementById('signinCloseBtn');
+signinHead = document.getElementById('signinHead');
 maxUID = parseInt(document.getElementById('maxUID').value);
 minUID = parseInt(document.getElementById('minUID').value);
+
+uid.value = '';
+
+if (getCookie('uid') == null || getCookie('uid') == -1) {
+    setCookie('uid', -1);
+    showToast('Please login to view personalized recommendations.', 3000);
+} else {
+    signinHead.innerHTML = `<span class="text-main-1">User ${getCookie('uid')}</span> Logged In`;
+}
+
+signinCloseBtn.addEventListener('click', (e) => {
+    uid.value = '';
+})
 
 loginForm.addEventListener('submit', (e) => {
     e.stopPropagation();
     e.preventDefault();
+    console.log('here');
     try {
         id = parseInt(uid.value);
+        // uid.value = '';
     } catch (error) {
-        showToast(`Enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
+        showToast(`Please enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
     }
     if (id >= minUID && id <= maxUID) {
         setCookie('uid', id);
-        showToast(`successfully signed in as User ${id}`)
+        showToast(`Successfully signed in as User ${id}.`);
+        signinHead.innerHTML = `<span class="text-main-1">User ${getCookie('uid')}</span> Logged In`;
     }
     else
-        showToast(`Enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
+        showToast(`Please enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
+});
+
+logoutLink.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    uid.value = '';
+    if (getCookie('uid') == null || getCookie('uid') == -1) {
+        showToast('Already logged out.');
+    } else {
+        setCookie('uid', -1);
+        showToast('Successfully logged out.');
+        signinHead.innerHTML = `<span class="text-main-1">Sign</span> In`;
+    }
 });

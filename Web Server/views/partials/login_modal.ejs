@@ -3,20 +3,23 @@
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="signinCloseBtn">
                     <span class="ion-android-close"></span>
                 </button>
 
-                <h4 class="mb-0"><span class="text-main-1">Sign</span> In</h4>
+                <h4 class="mb-0" id="signinHead"><span class="text-main-1">Sign</span> In</h4>
 
                 <div class="nk-gap-1"></div>
-                <form action="#" class="nk-form text-white">
+                <form action="#" class="nk-form text-white" id="login">
+                    <input type="hidden" value="<%- minUID %>" id="minUID">
+                    <input type="hidden" value="<%- maxUID %>" id="maxUID">
                     <div class="row vertical-gap">
                         <div class="col-md-6">
                             Use user id and password:
 
                             <div class="nk-gap"></div>
-                            <input type="text" value="" name="uid" class="required form-control" placeholder="User Id">
+                            <input type="text" value="" name="uid" id="uid" class="required form-control"
+                                placeholder="User Id">
 
                             <div class="nk-gap"></div>
                             <input type="password" value="" name="password" class="form-control"
@@ -41,11 +44,11 @@
                     <div class="nk-gap-1"></div>
                     <div class="row vertical-gap">
                         <div class="col-md-6">
-                            <a href="#" class="nk-btn nk-btn-rounded nk-btn-color-white nk-btn-block">Sign In</a>
+                            <button href="#" class="nk-btn nk-btn-rounded nk-btn-color-white nk-btn-block">Sign In</button>
                         </div>
                         <div class="col-md-6">
                             <div class="mnt-5">
-                                <small><a href="#">Forgot your password?</a></small>
+                                <small><a href="#" id="logout">Click here to logout</a></small>
                             </div>
                             <div class="mnt-5">
                                 <small><a href="#">Not a member? Sign up</a></small>

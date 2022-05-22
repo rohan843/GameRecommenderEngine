@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cookieHandler = require('./Utilities/cookieHandler.js');
 
 // ---- Constants ----
-allGenres = [
+const allGenres = [
     {
         title: 'Action',
         genre_id: 2
@@ -22,6 +23,8 @@ allGenres = [
         genre_id: -1
     },
 ];
+const minUID = 0
+const maxUID = 49
 
 const app = express();
 
@@ -36,6 +39,9 @@ app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', (req, res) => {
+    
+    console.log(cookieHandler.getUid(req.cookies));
+    
     res.render('index', {
         bestSeller: [
             {
@@ -325,8 +331,10 @@ app.get('/', (req, res) => {
                 rating: 3
             }
         ],
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/store-product', (req, res) => {
@@ -410,8 +418,10 @@ app.get('/store-product', (req, res) => {
             matureContent: 'Suitable for people aged 12 and over.',
             rating: 4,
         },
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/store', (req, res) => {
@@ -583,8 +593,10 @@ app.get('/store', (req, res) => {
                 price: '14.00'
             }
         ],
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/store-catalog', (req, res) => {
@@ -659,8 +671,10 @@ app.get('/store-catalog', (req, res) => {
                 genre_id: 1
             }
         ],
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/store-cart', (req, res) => {
@@ -697,8 +711,10 @@ app.get('/store-cart', (req, res) => {
                 price: '32.00'
             },
         ],
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/similar-users', (req, res) => {
@@ -725,21 +741,28 @@ app.get('/similar-users', (req, res) => {
                 age: 32
             }
         ],
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 app.get('/community-stats', (req, res) => {
     res.render('community-stats', {
         gameCount: 28256,
         gamerCount: 50,
-        allGenres: allGenres
-    })
+        allGenres: allGenres,
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 //The 404 Route
 app.get('*', function (req, res) {
-    res.status(404).render('404');
+    res.status(404).render('404', {
+        maxUID: maxUID,
+        minUID: minUID,
+    });
 });
 
 // ---- Server Setup ----
