@@ -1,37 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
+import * as CookieHandler from "Utilities/cookieHandler.mjs";
+import { allGenres } from "./Utilities/constants.mjs";
 
 const app = express();
 
 // ---- Database Related Work ----
-url = 'mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/'
 
 
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
-app.use(express.static('public'))
-
-// ---- Constants ----
-allGenres = [
-    {
-        title: 'Action',
-        genre_id: 2
-    },
-    {
-        title: 'Action',
-        genre_id: 2
-    },
-    {
-        title: 'Action',
-        genre_id: 3
-    },
-    {
-        title: 'Merge By OR',
-        genre_id: -1
-    },
-]
+app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', (req, res) => {
@@ -327,10 +308,6 @@ app.get('/', (req, res) => {
         allGenres: allGenres
     })
 });
-
-// app.get('/gallery', (req, res) => {
-//     res.render('gallery')
-// });
 
 app.get('/store-product', (req, res) => {
     res.render('store-product', {
