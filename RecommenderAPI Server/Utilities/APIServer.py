@@ -51,12 +51,14 @@ from flask import Flask, jsonify, request
 from recommender import Recommender
 from validator import Validator
 from readerwriterlock import rwlock
+from genrelist import GenreList
 
 app = Flask(__name__)
 
 recommender = Recommender()
 validator = Validator()
 rw_lock = rwlock.RWLockWrite()
+genre_list = GenreList()
 
 
 def get_json_based_response(code: int, desc: str):
@@ -207,7 +209,7 @@ def get_genre_based_recs():
                 'recommendations': [
                     recommender.get_games_by_genre(
                         uid=uid,
-                        genres=genres.strip().split(','),
+                        genres=genre_list.genre_list_from_id_string(genres),
                         merge_by_and=merge_by_and,
                         k=k
                     )
