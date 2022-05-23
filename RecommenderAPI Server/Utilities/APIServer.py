@@ -16,7 +16,7 @@ This module contains the main functionality of the recommender API. It provides 
 - /genre_game_rec : Get game recommendations for a user, with games of the specified genres. The url parameters are:
     1. uid: REQUIRED Must be an integer user id of the user.
     2. k: OPTIONAL The maximum number of recommendations to provide.
-    3. genres: REQUIRED The comma - separated, case-sensitive genres for which the games are to be found.
+    3. genres: REQUIRED The comma - separated, list of genre ids for which the games are to be found.
     4. merge_by_and: REQUIRED If True, the games having all the specified genres are chosen. Else, games having at least
         one genre are chosen.
 
@@ -29,7 +29,6 @@ In all cases except game recommendations for users, the response is of the form 
 syntax:
 
 {
-    'status': The response's HTTP status code
     'message': The message in the response.
     ['recommendations': A list of recommendations. The id of the most recommended user/item comes first. This parameter
     is only included if there was no error.]
@@ -37,7 +36,6 @@ syntax:
 
 In the case of game recommendations for users, the response is of the following form:
 {
-    'status': The response's HTTP status code
     'message': The message in the response.
     'recommendations': {
         'profile_based': list of game recommendations for the user on the basis of user profile
@@ -71,7 +69,6 @@ def get_json_based_response(code: int, desc: str):
     """
 
     return jsonify({
-        'status': code,
         'message': desc
     }), code
 
@@ -99,7 +96,6 @@ def get_user_game_recs():
     with rw_lock.gen_rlock():
         return jsonify(
             {
-                'status': 200,
                 'message': 'Successfully found game recommendations',
                 'recommendations':
                     recommender.get_user_game_recs(uid, k)
@@ -129,7 +125,6 @@ def get_user_user_recs():
     with rw_lock.gen_rlock():
         return jsonify(
             {
-                'status': 200,
                 'message': 'Successfully found similar users.',
                 'recommendations': [
                     recommender.get_user_user_recs(uid, k)
@@ -160,7 +155,6 @@ def get_game_game_recs():
     with rw_lock.gen_rlock():
         return jsonify(
             {
-                'status': 200,
                 'message': 'Successfully found similar games.',
                 'recommendations': [
                     recommender.get_game_game_recs(game_id, k)
@@ -209,7 +203,6 @@ def get_genre_based_recs():
     with rw_lock.gen_rlock():
         return jsonify(
             {
-                'status': 200,
                 'message': 'Successfully found similar games.',
                 'recommendations': [
                     recommender.get_games_by_genre(
