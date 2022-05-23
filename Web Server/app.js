@@ -183,9 +183,33 @@ const getUserUserRecs = async (uid, k) => {
 };
 const getGameGameRecs = async (game_id, k) => {
     const url = baseURL + '/game_game_rec';
+    try {
+        let res = await axios.get(url, {
+            params: {
+                game_id: game_id,
+                k: k
+            }
+        });
+        return res.data;
+    } catch (e) {
+        console.log(e);
+    }
 };
 const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
     const url = baseURL + '/genre_game_rec';
+    try {
+        let res = await axios.get(url, {
+            params: {
+                uid: uid,
+                k: k,
+                genres: genres,
+                merge_by_and: merge_by_and
+            }
+        });
+        return res.data;
+    } catch (e) {
+        console.log(e);
+    }
 };
 
 
@@ -918,9 +942,6 @@ app.get('/similar-users', async (req, res) => {
 });
 
 app.get('/community-stats', async (req, res) => {
-
-    console.log(await getUserUserRecs(0, 5));
-
     res.render('community-stats', {
         gameCount: await numGames(),
         gamerCount: (await numUsers()),
