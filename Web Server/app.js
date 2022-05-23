@@ -4,6 +4,116 @@ const parser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieHandler = require('./Utilities/cookieHandler.js');
 const MongoClient = require('mongodb').MongoClient;
+const axios = require('axios');
+
+
+const app = express();
+
+// ---- Database Related Work ----
+const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
+
+// Given a list of ids, it returns the mongo db query to find all those ids.
+function getMongoQuery(ids, id_col = 'id') {
+    let list = [];
+    for (let i = 0; i < ids.length; i++) {
+        let a = {};
+        a[id_col] = ids[i];
+        list.push(a);
+    }
+    return { '$or': list };
+}
+
+// Inputs a list of game ids and returns game details of the valid games in an array in arbitrary order.
+const getGameData = async (game_ids) => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return [];
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('allGameData');
+            const query = getMongoQuery(game_ids);
+            const res = await collection.find(query).toArray();
+            client.close();
+            return res;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return [];
+        }
+    }
+};
+
+// Given an array of game ids, and an array of game data, it sorts the game data according to game ids.
+const sortGameData = (game_ids, game_data) => {
+    let id_dict = {};
+    for (let i = 0; i < game_ids.length; i++) {
+        id_dict[game_ids[i]] = i;
+    }
+    game_data.sort((a, b) => id_dict[a.id] - id_dict[b.id]);
+    return game_data;
+};
+
+// Inputs a game id and returns its feature details.
+const getGameFeatureData = async (game_id) => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return {};
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('gameFeatures');
+            const query = { id: game_id };
+            const res = await collection.findOne(query);
+            client.close();
+            return res;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return {};
+        }
+    }
+};
+
+// Returns the number of users in the database.
+const numUsers = async () => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return [];
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('allUserData');
+            const res = await collection.estimatedDocumentCount();
+            client.close();
+            return res;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return [];
+        }
+    }
+};
+
+// Returns the number of games in the database.
+const numGames = async () => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return [];
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('allGameData');
+            const res = await collection.estimatedDocumentCount();
+            client.close();
+            return res;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return [];
+        }
+    }
+};
 
 
 // ---- Constants ----
@@ -25,13 +135,37 @@ const allGenres = [
         genre_id: -1
     },
 ];
-const minUID = 0
-const maxUID = 49
+const minUID = 0;
 
-const app = express();
+// ---- Recommender API functions ----
+const baseURL = 'http://127.0.0.1:5000';
+const resetRecommenderData = (pw = 'qwerty') => {
+    const url = baseURL + '/refresh_model_data';
+    axios.post(url, {}, {
+        headers: {
+            pw: pw
+        }
+    }).then(res => {
+        console.log(`statusCode: ${res.status}`);
+        console.log(res);
+    }).catch(error => {
+        console.error(error);
+    });
+};
 
-// ---- Database Related Work ----
-const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
+const getUserGameRecs = (uid, k) => {
+    const url = baseURL + '/user_game_rec';
+};
+const getUserUserRecs = (uid, k) => {
+    const url = baseURL + '/user_user_rec';
+};
+const getGameGameRecs = (game_id, k) => {
+    const url = baseURL + '/game_game_rec';
+};
+const getUserGameGenreRecs = (uid, k, genres, merge_by_and) => {
+    const url = baseURL + '/genre_game_rec';
+};
+
 
 // ---- Express Plugins ----
 app.set('view engine', 'ejs');
@@ -40,7 +174,7 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 // ---- Server Routes ----
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     res.render('index', {
         bestSeller: [
             {
@@ -331,113 +465,114 @@ app.get('/', (req, res) => {
             }
         ],
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
-app.get('/store-product', (req, res) => {
-
-    const game_id = 10;
-
-    MongoClient.connect(url, function (err, db) {
-        if (err) throw err;
-        const recommenderDB = db.db("recommenderDB");
-        recommenderDB.collection("allGameData").findOne({id: game_id}, function (err, resultAlldata) {
-            if (err) throw err;
-            recommenderDB.collection("gameFeatures").findOne({id: game_id}, function (err, featureData) {
-                if(err) throw err;
-                res.render('store-product', {
-                    genreCategories: [
-                        {
-                            name: 'Action',
-                            genre_id: 1
-                        },
-                        {
-                            name: 'Action',
-                            genre_id: 1
-                        },
-                        {
-                            name: 'Action',
-                            genre_id: 1
-                        },
-                        {
-                            name: 'Action',
-                            genre_id: 1
-                        },
-                        {
-                            name: 'Action',
-                            genre_id: 1
-                        }
-                    ],
-                    otherUserLikes: [
-                        {
-                            title: 'So saying he unbuckled',
-                            rating: 4,
-                            price: '23.00',
-                        },
-                        {
-                            title: 'So saying he unbuckled',
-                            rating: 4,
-                            price: '23.00',
-                        },
-                        {
-                            title: 'So saying he unbuckled',
-                            rating: 4,
-                            price: '23.00',
-                        },
-                        {
-                            title: 'So saying he unbuckled',
-                            rating: 4,
-                            price: '23.00',
-                        },
-                    ],
-                    relatedProducts: [
-                        {
-                            img: 'assets/images/product-11-xs.jpg',
-                            title: 'She gave my mother',
-                            rating: 3,
-                            price: '24.00',
-                            id: 2
-                        },
-                        {
-                            img: 'assets/images/product-11-xs.jpg',
-                            title: 'She gave my mother',
-                            rating: 3,
-                            price: '24.00',
-                            id: 2
-                        },
-                        {
-                            img: 'assets/images/product-11-xs.jpg',
-                            title: 'She gave my mother',
-                            rating: 3,
-                            price: '24.00',
-                            id: 2
-                        }
-                    ],
-                    mainProductDesc: {
-                        id: resultAlldata.id,
-                        name: resultAlldata.name,
-                        platformSpecs: resultAlldata.recommended_requirements,
-                        price: (resultAlldata.discount_price && resultAlldata.discount_price.slice(1)) || (resultAlldata.original_price && resultAlldata.original_price.slice(1)) || featureData.price,
-                        desc: resultAlldata.game_description.slice(0, 500) + '...',
-                        tags: (resultAlldata.popular_tags && resultAlldata.popular_tags.slice(0, 100) + '...') || '',
-                        genres: (resultAlldata.genre && resultAlldata.genre.slice(0, 100) + '...') || '',
-                        release: resultAlldata.release_date_y,
-                        matureContent: (resultAlldata.mature_content && resultAlldata.mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
-                        rating: featureData.rating,
-                    },
-                    allGenres: allGenres,
-                    maxUID: maxUID,
-                    minUID: minUID,
-                });
-                db.close();
-            });
-        });
+app.get('/store-product', async (req, res) => {
+    const game_id = parseInt(req.query.game_id);
+    const game_ids = [game_id];
+    let gameData = sortGameData(game_ids, await getGameData(game_ids));
+    let gameFeatures = await getGameFeatureData(game_id);
+    res.render('store-product', {
+        genreCategories: [
+            {
+                name: 'Action',
+                genre_id: 1
+            },
+            {
+                name: 'Action',
+                genre_id: 1
+            },
+            {
+                name: 'Action',
+                genre_id: 1
+            },
+            {
+                name: 'Action',
+                genre_id: 1
+            },
+            {
+                name: 'Action',
+                genre_id: 1
+            }
+        ],
+        otherUserLikes: [
+            {
+                title: 'So saying he unbuckled',
+                rating: 4,
+                price: '23.00',
+            },
+            {
+                title: 'So saying he unbuckled',
+                rating: 4,
+                price: '23.00',
+            },
+            {
+                title: 'So saying he unbuckled',
+                rating: 4,
+                price: '23.00',
+            },
+            {
+                title: 'So saying he unbuckled',
+                rating: 4,
+                price: '23.00',
+            },
+        ],
+        relatedProducts: [
+            {
+                img: 'assets/images/product-11-xs.jpg',
+                title: 'She gave my mother',
+                rating: 3,
+                price: '24.00',
+                id: 2
+            },
+            {
+                img: 'assets/images/product-11-xs.jpg',
+                title: 'She gave my mother',
+                rating: 3,
+                price: '24.00',
+                id: 2
+            },
+            {
+                img: 'assets/images/product-11-xs.jpg',
+                title: 'She gave my mother',
+                rating: 3,
+                price: '24.00',
+                id: 2
+            }
+        ],
+        mainProductDesc: ((gameData.length >= 1) && {
+            id: gameData[0].id,
+            name: gameData[0].name,
+            platformSpecs: gameData[0].recommended_requirements,
+            price: (gameData[0].discount_price && gameData[0].discount_price.slice(1)) || (gameData[0].original_price && gameData[0].original_price.slice(1)) || parseFloat(gameFeatures.price).toFixed(2),
+            desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
+            tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
+            genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
+            release: gameData[0].release_date_y,
+            matureContent: (gameData[0].mature_content && gameData[0].mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
+            rating: 0 || gameFeatures.rating,
+        }) || {
+            id: -1,
+            name: 'No Game Found',
+            platformSpecs: 'N/A',
+            price: 'N/A',
+            desc: 'N/A',
+            tags: 'N/A',
+            genres: 'N/A',
+            release: 'N/A',
+            matureContent: 'N/A',
+            rating: 0
+        },
+        allGenres: allGenres,
+        maxUID: (await numUsers()) - 2,
+        minUID: minUID,
     });
 });
 
-app.get('/store', (req, res) => {
+app.get('/store', async (req, res) => {
     res.render('store', {
         genre1: 'Action',
         genre2: 'MMO',
@@ -607,12 +742,12 @@ app.get('/store', (req, res) => {
             }
         ],
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
-app.get('/store-catalog', (req, res) => {
+app.get('/store-catalog', async (req, res) => {
     res.render('store-catalog', {
         genre1: 'Action',
         genre2: 'MMO',
@@ -685,12 +820,12 @@ app.get('/store-catalog', (req, res) => {
             }
         ],
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
-app.get('/store-cart', (req, res) => {
+app.get('/store-cart', async (req, res) => {
     res.render('store-cart', {
         games: [
             {
@@ -725,12 +860,12 @@ app.get('/store-cart', (req, res) => {
             },
         ],
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
-app.get('/similar-users', (req, res) => {
+app.get('/similar-users', async (req, res) => {
     res.render('similar-users', {
         users: [
             {
@@ -755,25 +890,25 @@ app.get('/similar-users', (req, res) => {
             }
         ],
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
-app.get('/community-stats', (req, res) => {
+app.get('/community-stats', async (req, res) => {
     res.render('community-stats', {
-        gameCount: 28256,
-        gamerCount: 50,
+        gameCount: await numGames(),
+        gamerCount: (await numUsers()),
         allGenres: allGenres,
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
 
 //The 404 Route
-app.get('*', function (req, res) {
+app.get('*', async (req, res) => {
     res.status(404).render('404', {
-        maxUID: maxUID,
+        maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
 });
