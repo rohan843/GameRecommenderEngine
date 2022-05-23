@@ -153,16 +153,38 @@ const resetRecommenderData = (pw = 'qwerty') => {
     });
 };
 
-const getUserGameRecs = (uid, k) => {
+const getUserGameRecs = async (uid, k) => {
     const url = baseURL + '/user_game_rec';
+    try {
+        let res = await axios.get(url, {
+            params: {
+                uid: uid,
+                k: k
+            }
+        });
+        return res.data;
+    } catch (e) {
+        console.log(e);
+    }
 };
-const getUserUserRecs = (uid, k) => {
+const getUserUserRecs = async (uid, k) => {
     const url = baseURL + '/user_user_rec';
+    try {
+        let res = await axios.get(url, {
+            params: {
+                uid: uid,
+                k: k
+            }
+        });
+        return res.data;
+    } catch (e) {
+        console.log(e);
+    }
 };
-const getGameGameRecs = (game_id, k) => {
+const getGameGameRecs = async (game_id, k) => {
     const url = baseURL + '/game_game_rec';
 };
-const getUserGameGenreRecs = (uid, k, genres, merge_by_and) => {
+const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
     const url = baseURL + '/genre_game_rec';
 };
 
@@ -896,6 +918,9 @@ app.get('/similar-users', async (req, res) => {
 });
 
 app.get('/community-stats', async (req, res) => {
+
+    console.log(await getUserUserRecs(0, 5));
+
     res.render('community-stats', {
         gameCount: await numGames(),
         gamerCount: (await numUsers()),

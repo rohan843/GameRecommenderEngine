@@ -128,9 +128,7 @@ def get_user_user_recs():
         return jsonify(
             {
                 'message': 'Successfully found similar users.',
-                'recommendations': [
-                    recommender.get_user_user_recs(uid, k)
-                ]
+                'recommendations': recommender.get_user_user_recs(uid, k)
             }
         )
 
@@ -158,9 +156,7 @@ def get_game_game_recs():
         return jsonify(
             {
                 'message': 'Successfully found similar games.',
-                'recommendations': [
-                    recommender.get_game_game_recs(game_id, k)
-                ]
+                'recommendations': recommender.get_game_game_recs(game_id, k)
             }
         )
 
@@ -206,14 +202,12 @@ def get_genre_based_recs():
         return jsonify(
             {
                 'message': 'Successfully found similar games.',
-                'recommendations': [
-                    recommender.get_games_by_genre(
+                'recommendations': recommender.get_games_by_genre(
                         uid=uid,
                         genres=genre_list.genre_list_from_id_string(genres),
                         merge_by_and=merge_by_and,
                         k=k
                     )
-                ]
             }
         )
 
