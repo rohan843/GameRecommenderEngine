@@ -120,7 +120,9 @@ const numGames = async () => {
     }
 };
 
+const f = obj => Object.fromEntries(Object.entries(obj).map(a => a.reverse()))
 const genreDict = { 0: 'Casual', 1: 'Strategy', 2: 'RPG', 3: 'Photo Editing', 4: 'Valve', 5: 'Sports', 6: 'Software Training', 7: 'Accounting', 8: 'Adventure', 9: 'Indie', 10: 'Audio Production', 11: 'Animation & Modeling', 12: 'Game Development', 13: 'Simulation', 14: 'Design & Illustration', 15: 'Education', 16: 'Utilities', 17: 'Movie', 18: 'Early Access', 19: 'Racing', 20: 'Action', 21: 'Web Publishing', 22: 'Video Production', 23: 'Free to Play', 24: 'Massively Multiplayer', 25: 'Simplified Chinese', 26: 'Ukrainian', 27: 'Dutch', 28: 'Norwegian', 29: 'Japanese', 30: 'Arabic', 31: 'Finnish', 32: 'Portuguese', 33: 'Turkish', 34: '#lang_#lang_#lang_english**#lang_full_audio*#lang_full_audio', 35: 'Hungarian', 36: 'Romanian', 37: 'Korean', 38: 'Traditional Chinese', 39: 'Greek', 40: '#lang_german;', 41: 'Vietnamese', 42: 'Portuguese - Brazil', 43: 'Russian', 44: '#lang_#lang_spanish*#lang_full_audio', 45: 'Polish', 46: 'Czech', 47: '(all with full audio support)', 48: 'English', 49: 'Danish', 50: 'Thai', 51: 'Italian', 52: 'Spanish - Spain', 53: 'Slovakian', 54: 'German', 55: 'Spanish - Latin America', 56: 'Swedish', 57: 'French', 58: 'Bulgarian' };
+const genreDictRev = f(genreDict);
 
 const getUser3GenresAndAge = (user) => {
     let top3Genres = [];
@@ -298,7 +300,7 @@ const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
             params: {
                 uid: uid,
                 k: k,
-                genres: genres,
+                genres: genres.join(','),
                 merge_by_and: merge_by_and
             }
         });
@@ -317,11 +319,20 @@ app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
+
+    // TODO: Render games by genre.
+
     let uid = cookieHandler.getUid(req.cookies);
-    const user = await userDetails(uid);
-    const top6genres = ['Casual', 'Strategy', 'RPG', 'Photo Editing', 'Valve', 'Sports'] || getTop6Genres(user);
-    const userGameRecs = (await getUserGameRecs(uid, 5)).recommendations;
-    const featuredGamesList = await featuredGames();
+    // const user = await userDetails(uid);
+    // const top6genres = getTop6Genres(user);
+    // const userGameRecs = (await getUserGameRecs(uid, 5)).recommendations;
+    // const featuredGamesList = await featuredGames();
+
+    let [user, userGameRecs, featuredGamesList] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 5), featuredGames()]);
+    userGameRecs = userGameRecs.recommendations;
+    const top6genres = getTop6Genres(user);
+
+
     const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
     const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
     const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
@@ -329,6 +340,28 @@ app.get('/', async (req, res) => {
     const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
     const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
 
+    // let [
+    //     featuredGamesData, 
+    //     featuredGamesFeatures, 
+    //     profileBasedGames, 
+    //     similarUserBasedGames,
+    //     profileBasedGameFeatures,
+    //     similarUserBasedGameFeatures
+    // ] = await Promise.all([
+    //     getGameData(featuredGamesList), 
+    //     getGameFeatureData(featuredGamesList), 
+    //     getGameData(userGameRecs.profile_based), 
+    //     getGameData(userGameRecs.similar_user_based),
+    //     getGameFeatureData(userGameRecs.profile_based),
+    //     getGameFeatureData(userGameRecs.similar_user_based)
+    // ]);
+    // featuredGamesData = sortGameData(featuredGamesList, featuredGamesData);
+    // featuredGamesFeatures = sortGameData(featuredGamesList, featuredGamesFeatures);
+    // profileBasedGames = sortGameData(userGameRecs.profile_based, profileBasedGames);
+    // similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, similarUserBasedGames);
+    // profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, profileBasedGameFeatures);
+    // similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, similarUserBasedGameFeatures);
+    
     const userRecs = [];
     for (let i = 0; i < profileBasedGames.length; i++) {
         const num = getRndInteger(1, 10);
@@ -371,187 +404,7 @@ app.get('/', async (req, res) => {
     res.render('index', {
         bestSeller: fourFeaturedGames,
         otherUserLikes: otherUserBasedRecs,
-        latestPics: [
-            {
-                imgLink: 'assets/images/gallery-1.jpg',
-                thumbnailLink: 'assets/images/gallery-1-thumb.jpg',
-                imgSize: '1016x572',
-                descHead: 'Called Let',
-                desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
-            },
-            {
-                imgLink: 'assets/images/gallery-1.jpg',
-                thumbnailLink: 'assets/images/gallery-1-thumb.jpg',
-                imgSize: '1016x572',
-                descHead: 'Called Let',
-                desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
-            },
-            {
-                imgLink: 'assets/images/gallery-1.jpg',
-                thumbnailLink: 'assets/images/gallery-1-thumb.jpg',
-                imgSize: '1016x572',
-                descHead: 'Called Let',
-                desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
-            },
-            {
-                imgLink: 'assets/images/gallery-1.jpg',
-                thumbnailLink: 'assets/images/gallery-1-thumb.jpg',
-                imgSize: '1016x572',
-                descHead: 'Called Let',
-                desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
-            },
-            {
-                imgLink: 'assets/images/gallery-1.jpg',
-                thumbnailLink: 'assets/images/gallery-1-thumb.jpg',
-                imgSize: '1016x572',
-                descHead: 'Called Let',
-                desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
-            }
-        ],
         genres: top6genres,
-        genreData: {
-            'Casual': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'Strategy': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'RPG': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'Photo Editing': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'Valve': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'Sports': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-        },
-        genre1: top6genres[0],
-        genre2: top6genres[1],
-        genre3: top6genres[2],
         userRecs: userRecs,
         allGenres: allGenres,
         maxUID: (await numUsers()) - 2,
