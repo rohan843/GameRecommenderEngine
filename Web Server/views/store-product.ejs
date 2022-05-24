@@ -434,11 +434,11 @@
                             <% for( let i = 0; i < relatedProducts.length; i++ ) { %>
                                 <div class="col-md-6">
                                     <div class="nk-product-cat">
-                                        <a class="nk-product-image" href="/store-product">
+                                        <a class="nk-product-image" href="/store-product?game_id=<%- relatedProducts[i].id %>">
                                             <img src="<%- relatedProducts[i].img %>" alt="<%- relatedProducts[i].title %>">
                                         </a>
                                         <div class="nk-product-cont">
-                                            <h3 class="nk-product-title h5"><a href="/store-product"><%- relatedProducts[i].title %></a></h3>
+                                            <h3 class="nk-product-title h5"><a href="/store-product?game_id=<%- relatedProducts[i].id %>"><%- relatedProducts[i].title %></a></h3>
                                             <div class="nk-gap-1"></div>
                                             <div class="nk-product-rating" data-rating="<%- relatedProducts[i].rating %>"> 
                                                 <% for( let j = 0; j < relatedProducts[i].rating; j++ ) { %>
@@ -523,11 +523,11 @@
 
                                     <% for( let i=0; i < otherUserLikes.length; i++ ) { %>
                                         <div class="nk-widget-post">
-                                            <a href="/store-product" class="nk-post-image">
-                                                <img src="assets/images/product-1-xs.jpg"
+                                            <a href="/store-product?game_id=<%- otherUserLikes[i].id %>" class="nk-post-image">
+                                                <img src="<%- otherUserLikes[i].img %>"
                                                     alt="<%- otherUserLikes[i].title %>">
                                             </a>
-                                            <h3 class="nk-post-title"><a href="/store-product">
+                                            <h3 class="nk-post-title"><a href="/store-product?game_id=<%- otherUserLikes[i].id %>">
                                                     <%- otherUserLikes[i].title %>
                                                 </a>
                                             </h3>

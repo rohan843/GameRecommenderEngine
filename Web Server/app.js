@@ -11,8 +11,8 @@ const app = express();
 
 // Returns a random integer between min (included) and max (excluded)
 function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
-  }
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 
 // ---- Database Related Work ----
 const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
@@ -59,8 +59,8 @@ const sortGameData = (game_ids, game_data) => {
     return game_data;
 };
 
-// Inputs a game id and returns its feature details.
-const getGameFeatureData = async (game_id) => {
+// Inputs a list of game ids and returns their feature details.
+const getGameFeatureData = async (game_ids) => {
     const client = await MongoClient.connect(url).catch(err => { console.log(err) });
     if (!client) {
         return {};
@@ -68,8 +68,8 @@ const getGameFeatureData = async (game_id) => {
         try {
             const db = client.db('recommenderDB');
             const collection = db.collection('gameFeatures');
-            const query = { id: game_id };
-            const res = await collection.findOne(query);
+            const query = getMongoQuery(game_ids);
+            const res = await collection.find(query).toArray();
             client.close();
             return res;
         } catch (e) {
@@ -253,7 +253,7 @@ const userDetails = async (uid) => {
             const query = { uid: uid };
             const res = await collection.find(query).toArray();
             client.close();
-            return res;
+            return res[0];
         } catch (e) {
             console.log(e);
             client.close();
@@ -367,11 +367,11 @@ app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
+    res.redirect('store');
 
     let uid = cookieHandler.getUid(req.cookies);
     const user = await userDetails(uid);
     const top6genres = getTop6Genres(user);
-    console.log(top6genres);
     // const userGameRecs = getUserGameRecs(uid, 5);
 
     res.render('index', {
@@ -664,104 +664,133 @@ app.get('/', async (req, res) => {
 
 app.get('/store-product', async (req, res) => {
     const game_id = parseInt(req.query.game_id);
-    const game_ids = [game_id];
-    let gameData = sortGameData(game_ids, await getGameData(game_ids));
-    let gameFeatures = await getGameFeatureData(game_id);
-    res.render('store-product', {
-        genreCategories: [
-            {
-                name: 'Action',
-                genre_id: 1
+    const uid = cookieHandler.getUid(req.cookies);
+    const similarUserRecs = (await getUserGameRecs(uid, 4)).recommendations.similar_user_based;
+    const similarGameData = sortGameData(similarUserRecs, await getGameData(similarUserRecs));
+    const similarGameFeatureData = sortGameData(similarUserRecs, await getGameFeatureData(similarUserRecs));
+    otherUserLikes = [];
+    for(let i = 0; i < similarGameData.length; i++) {
+        otherUserLikes.push({
+            title: similarGameData[i].name,
+            rating: similarGameFeatureData[i].rating,
+            price: similarGameFeatureData[i].price.toString(),
+            id: similarGameData[i].id,
+            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`
+        });
+    }
+    if (!game_id) {
+        res.render('store-product', {
+            genreCategories: [
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                }
+            ],
+            otherUserLikes: otherUserLikes,
+            relatedProducts: [],
+            mainProductDesc: {
+                id: -1,
+                name: 'No Game Found',
+                platformSpecs: 'N/A',
+                price: 'N/A',
+                desc: 'N/A',
+                tags: 'N/A',
+                genres: 'N/A',
+                release: 'N/A',
+                matureContent: 'N/A',
+                rating: 0
             },
-            {
-                name: 'Action',
-                genre_id: 1
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    } else {
+        const relatedRecs = (await getGameGameRecs(game_id, 4)).recommendations;
+        const relatedGameData = sortGameData(relatedRecs, await getGameData(relatedRecs));
+        const relatedGameFeatureData = sortGameData(relatedRecs, await getGameFeatureData(relatedRecs));
+        const relatedProducts = [];
+        for(let i = 0; i < relatedGameData.length; i++) {
+            relatedProducts.push({
+                img: `assets/images/product-${getRndInteger(0, 17)}-xs.jpg`,
+                title: relatedGameData[i].name,
+                rating: relatedGameFeatureData[i].rating,
+                price: relatedGameFeatureData[i].price.toString(),
+                id: relatedGameFeatureData[i].id
+            });
+        }
+
+        const game_ids = [game_id];
+        const gameData = sortGameData(game_ids, await getGameData(game_ids));
+        const gameFeatures = (await getGameFeatureData([game_id]))[0];
+        res.render('store-product', {
+            genreCategories: [
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                },
+                {
+                    name: 'Action',
+                    genre_id: 1
+                }
+            ],
+            otherUserLikes: otherUserLikes,
+            relatedProducts: relatedProducts,
+            mainProductDesc: ((gameData.length >= 1) && {
+                id: gameData[0].id,
+                name: gameData[0].name,
+                platformSpecs: gameData[0].recommended_requirements,
+                price: (gameData[0].discount_price && gameData[0].discount_price.slice(1)) || (gameData[0].original_price && gameData[0].original_price.slice(1)) || parseFloat(gameFeatures.price).toFixed(2),
+                desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
+                tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
+                genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
+                release: gameData[0].release_date_y,
+                matureContent: (gameData[0].mature_content && gameData[0].mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
+                rating: 0 || gameFeatures.rating,
+            }) || {
+                id: -1,
+                name: 'No Game Found',
+                platformSpecs: 'N/A',
+                price: 'N/A',
+                desc: 'N/A',
+                tags: 'N/A',
+                genres: 'N/A',
+                release: 'N/A',
+                matureContent: 'N/A',
+                rating: 0
             },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            }
-        ],
-        otherUserLikes: [
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-        ],
-        relatedProducts: [
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            },
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            },
-            {
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '24.00',
-                id: 2
-            }
-        ],
-        mainProductDesc: ((gameData.length >= 1) && {
-            id: gameData[0].id,
-            name: gameData[0].name,
-            platformSpecs: gameData[0].recommended_requirements,
-            price: (gameData[0].discount_price && gameData[0].discount_price.slice(1)) || (gameData[0].original_price && gameData[0].original_price.slice(1)) || parseFloat(gameFeatures.price).toFixed(2),
-            desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
-            tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
-            genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
-            release: gameData[0].release_date_y,
-            matureContent: (gameData[0].mature_content && gameData[0].mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
-            rating: 0 || gameFeatures.rating,
-        }) || {
-            id: -1,
-            name: 'No Game Found',
-            platformSpecs: 'N/A',
-            price: 'N/A',
-            desc: 'N/A',
-            tags: 'N/A',
-            genres: 'N/A',
-            release: 'N/A',
-            matureContent: 'N/A',
-            rating: 0
-        },
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    }
 });
 
 app.get('/store', async (req, res) => {

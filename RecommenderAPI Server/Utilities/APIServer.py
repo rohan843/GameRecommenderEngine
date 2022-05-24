@@ -71,7 +71,8 @@ def get_json_based_response(code: int, desc: str):
     """
 
     return jsonify({
-        'message': desc
+        'message': desc,
+        'recommendations': []
     }), code
 
 
