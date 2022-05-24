@@ -696,7 +696,7 @@ app.get('/store-product', async (req, res) => {
                 id: gameData[0].id,
                 name: gameData[0].name,
                 platformSpecs: gameData[0].recommended_requirements,
-                price: (gameData[0].discount_price && gameData[0].discount_price.slice(1)) || (gameData[0].original_price && gameData[0].original_price.slice(1)) || parseFloat(gameFeatures.price).toFixed(2),
+                price: parseFloat(gameFeatures.price).toFixed(2),
                 desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
                 tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
                 genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
