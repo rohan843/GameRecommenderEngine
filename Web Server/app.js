@@ -1013,47 +1013,57 @@ app.get('/store-catalog', async (req, res) => {
 });
 
 app.get('/store-cart', async (req, res) => {
-    res.render('store-cart', {
-        games: [
-            {
-                title: 'HOWEVER, I HAVE REASON',
-                id: 1,
-                img: 'assets/images/product-2-xs.jpg',
-                price: '32.00'
-            },
-            {
-                title: 'HOWEVER, I HAVE REASON',
-                id: 1,
-                img: 'assets/images/product-2-xs.jpg',
-                price: '32.00'
-            },
-            {
-                title: 'HOWEVER, I HAVE REASON',
-                id: 1,
-                img: 'assets/images/product-2-xs.jpg',
-                price: '32.00'
-            },
-            {
-                title: 'HOWEVER, I HAVE REASON',
-                id: 1,
-                img: 'assets/images/product-2-xs.jpg',
-                price: '32.00'
-            },
-            {
-                title: 'HOWEVER, I HAVE REASON',
-                id: 1,
-                img: 'assets/images/product-2-xs.jpg',
-                price: '32.00'
-            },
-        ],
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
+    const uid = cookieHandler.getUid(req.cookies);
+
+    if (uid === -1) {
+        res.render('store-cart', {
+            games: [],
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    } else {
+        res.render('store-cart', {
+            games: [
+                {
+                    title: 'HOWEVER, I HAVE REASON',
+                    id: 1,
+                    img: 'assets/images/product-2-xs.jpg',
+                    price: '32.00'
+                },
+                {
+                    title: 'HOWEVER, I HAVE REASON',
+                    id: 1,
+                    img: 'assets/images/product-2-xs.jpg',
+                    price: '32.00'
+                },
+                {
+                    title: 'HOWEVER, I HAVE REASON',
+                    id: 1,
+                    img: 'assets/images/product-2-xs.jpg',
+                    price: '32.00'
+                },
+                {
+                    title: 'HOWEVER, I HAVE REASON',
+                    id: 1,
+                    img: 'assets/images/product-2-xs.jpg',
+                    price: '32.00'
+                },
+                {
+                    title: 'HOWEVER, I HAVE REASON',
+                    id: 1,
+                    img: 'assets/images/product-2-xs.jpg',
+                    price: '32.00'
+                },
+            ],
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    }
 });
 
 app.get('/similar-users', async (req, res) => {
-
     const uid = cookieHandler.getUid(req.cookies);
     if (uid === -1) {
         res.render('similar-users', {
