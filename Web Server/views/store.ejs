@@ -148,7 +148,7 @@
                 <div class="row vertical-gap">
                     <div class="col-md-6 col-lg-4">
                         <div class="nk-gallery-item-box">
-                            <a href="/store-product" class="nk-gallery-item">
+                            <a href="/store-product?game_id=<%- featuredProduct1.id %>" class="nk-gallery-item">
                                 <span class="nk-gallery-item-overlay"><span><span
                                             class="nk-icon-circles"></span></span></span>
                                 <img src="assets/images/product-4-lg.jpg" alt="<%- featuredProduct1.title %>">
@@ -162,7 +162,7 @@
                     </div>
                     <div class="col-md-6 col-lg-4 order-lg-3">
                         <div class="nk-gallery-item-box">
-                            <a href="/store-product" class="nk-gallery-item">
+                            <a href="/store-product?game_id=<%- featuredProduct2.id %>" class="nk-gallery-item">
                                 <span class="nk-gallery-item-overlay"><span><span
                                             class="nk-icon-circles"></span></span></span>
                                 <img src="assets/images/product-2-lg.jpg" alt="<%- featuredProduct2.title %>">
@@ -178,7 +178,7 @@
                         <div class="row vertical-gap">
                             <div class="col-md-6">
                                 <div class="nk-gallery-item-box">
-                                    <a href="/store-product" class="nk-gallery-item">
+                                    <a href="/store-product?game_id=<%- semiFeaturedProduct1.id %>" class="nk-gallery-item">
                                         <span class="nk-gallery-item-overlay"><span><span
                                                     class="nk-icon-circles"></span></span></span>
                                         <img src="assets/images/product-3-lg.jpg"
@@ -188,7 +188,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="nk-gallery-item-box">
-                                    <a href="/store-product" class="nk-gallery-item">
+                                    <a href="/store-product?game_id=<%- semiFeaturedProduct2.id %>" class="nk-gallery-item">
                                         <span class="nk-gallery-item-overlay"><span><span
                                                     class="nk-icon-circles"></span></span></span>
                                         <img src="assets/images/product-1-lg.jpg"
@@ -198,7 +198,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="nk-gallery-item-box">
-                                    <a href="/store-product" class="nk-gallery-item">
+                                    <a href="/store-product?game_id=<%- semiFeaturedProduct3.id %>" class="nk-gallery-item">
                                         <span class="nk-gallery-item-overlay"><span><span
                                                     class="nk-icon-circles"></span></span></span>
                                         <img src="assets/images/product-5-lg.jpg"
@@ -208,7 +208,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="nk-gallery-item-box">
-                                    <a href="/store-product" class="nk-gallery-item">
+                                    <a href="/store-product?game_id=<%- semiFeaturedProduct4.id %>" class="nk-gallery-item">
                                         <span class="nk-gallery-item-overlay"><span><span
                                                     class="nk-icon-circles"></span></span></span>
                                         <img src="assets/images/product-6-lg.jpg"
@@ -233,12 +233,12 @@
                             <div>
                                 <div class="pl-5 pr-5">
                                     <div class="nk-product-cat-3">
-                                        <a class="nk-product-image" href="/store-product">
+                                        <a class="nk-product-image" href="/store-product?game_id=<%- top10Recs[i].id %>">
                                             <img src="<%- top10Recs[i].img %>" alt="<%- top10Recs[i].title %>">
                                         </a>
                                         <div class="nk-product-cont">
                                             <div class="nk-gap-1"></div>
-                                            <h3 class="nk-product-title h5"><a href="/store-product">
+                                            <h3 class="nk-product-title h5"><a href="/store-product?game_id=<%- top10Recs[i].id %>">
                                                     <%- top10Recs[i].title %>
                                                 </a></h3>
                                             <div class="nk-gap-1"></div>
@@ -262,11 +262,11 @@
                     <% for( let i=0; i < fourFeaturedGames.length; i++ ) { %>
                         <div class="col-lg-6">
                             <div class="nk-product-cat-2">
-                                <a class="nk-product-image" href="/store-product">
+                                <a class="nk-product-image" href="/store-product?game_id=<%- fourFeaturedGames[i].id %>">
                                     <img src="<%- fourFeaturedGames[i].img %>" alt="<%- fourFeaturedGames[i].title %>">
                                 </a>
                                 <div class="nk-product-cont">
-                                    <h3 class="nk-product-title h5"><a href="/store-product">
+                                    <h3 class="nk-product-title h5"><a href="/store-product?game_id=<%- fourFeaturedGames[i].id %>">
                                             <%- fourFeaturedGames[i].title %>
                                         </a></h3>
                                     <div class="nk-gap-1"></div>

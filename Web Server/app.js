@@ -202,6 +202,27 @@ const userDetails = async (uid) => {
     }
 };
 
+// Returns an array containing ids of the featured games.
+const featuredGames = async () => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return [0, 0, 0, 0];
+    } else {
+        try {
+            const db = client.db('sysDB');
+            const collection = db.collection('featuredGames');
+            const query = {};
+            const res = await collection.findOne(query);
+            client.close();
+            return res.featuredGames;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return [0, 0, 0, 0];
+        }
+    }
+};
+
 
 // ---- Constants ----
 const allGenres = [];
@@ -607,7 +628,7 @@ app.get('/store-product', async (req, res) => {
             img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`
         });
     }
-    if (!game_id) {
+    if (game_id !== 0 && !game_id) {
         res.render('store-product', {
             genreCategories: [
                 {
@@ -656,7 +677,7 @@ app.get('/store-product', async (req, res) => {
         const relatedProducts = [];
         for (let i = 0; i < relatedGameData.length; i++) {
             relatedProducts.push({
-                img: `assets/images/product-${getRndInteger(0, 17)}-xs.jpg`,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
                 title: relatedGameData[i].name,
                 rating: relatedGameFeatureData[i].rating,
                 price: relatedGameFeatureData[i].price.toString(),
@@ -702,174 +723,82 @@ app.get('/store-product', async (req, res) => {
 });
 
 app.get('/store', async (req, res) => {
+    const uid = cookieHandler.getUid(req.cookies);
+    const user = await userDetails(uid);
+    const top6genres = getTop6Genres(user);
+    const userGameRecs = (await getUserGameRecs(uid, 16)).recommendations;
+    const featuredGamesList = await featuredGames();
+    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
+    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
+    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+    const top10Recs = [];
+    for (let i = 5; i < profileBasedGames.length; i++) {
+        top10Recs.push({
+            id: profileBasedGames[i].id,
+            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+            title: profileBasedGames[i].name,
+            price: profileBasedGameFeatures[i].price
+        });
+    }
+
+    const mostPopularGames = [];
+    for (let i = 0; i < 6; i++) {
+        mostPopularGames.push({
+            id: similarUserBasedGames[i].id,
+            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+            title: similarUserBasedGames[i].name,
+            price: similarUserBasedGameFeatures[i].price,
+            rating: similarUserBasedGameFeatures[i].rating
+        });
+    }
+
+    const fourFeaturedGames = [];
+    for (let i = 0; i < featuredGamesData.length; i++) {
+        fourFeaturedGames.push({
+            img: `assets/images/product-${getRndInteger(1, 17)}-md.jpg`,
+            id: featuredGamesData[i].id,
+            title: featuredGamesData[i].name,
+            rating: featuredGamesFeatures[i].rating,
+            desc: featuredGamesData[i].desc_snippet.slice(0, 150) + '...',
+            price: featuredGamesFeatures[i].price
+        });
+    }
+
     res.render('store', {
-        genre1: 'Action',
-        genre2: 'MMO',
-        genre3: 'Strategy',
+        genre1: top6genres[0],
+        genre2: top6genres[1],
+        genre3: top6genres[2],
         featuredProduct1: {
-            id: 0,
-            title: 'She was bouncing'
+            id: profileBasedGames[0].id,
+            title: profileBasedGames[0].name
         },
         featuredProduct2: {
-            id: 0,
-            title: 'She was bouncing'
+            id: profileBasedGames[1].id,
+            title: profileBasedGames[1].name
         },
         semiFeaturedProduct1: {
-            id: 0,
-            title: 'In all revolutions of'
+            id: profileBasedGames[2].id,
+            title: profileBasedGames[2].name
         },
         semiFeaturedProduct2: {
-            id: 0,
-            title: 'In all revolutions of'
+            id: profileBasedGames[3].id,
+            title: profileBasedGames[3].name
         },
         semiFeaturedProduct3: {
-            id: 0,
-            title: 'In all revolutions of'
+            id: profileBasedGames[4].id,
+            title: profileBasedGames[4].name
         },
         semiFeaturedProduct4: {
-            id: 0,
-            title: 'In all revolutions of'
+            id: profileBasedGames[5].id,
+            title: profileBasedGames[5].name
         },
-        top10Recs: [
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-1-xs.jpg',
-                title: 'So saying he unbuckled',
-                price: '23.00'
-            }
-        ],
-        fourFeaturedGames: [
-            {
-                img: 'assets/images/product-7-md.jpg',
-                id: 0,
-                title: 'With what mingled joy',
-                rating: 3,
-                desc: 'She clutched the matron by the arm, and forcing her into a chair by the bedside, was about to speak, when looking round, she caught sight of the two old women',
-                price: '14.00'
-            },
-            {
-                img: 'assets/images/product-7-md.jpg',
-                id: 0,
-                title: 'With what mingled joy',
-                rating: 3,
-                desc: 'She clutched the matron by the arm, and forcing her into a chair by the bedside, was about to speak, when looking round, she caught sight of the two old women',
-                price: '14.00'
-            },
-            {
-                img: 'assets/images/product-7-md.jpg',
-                id: 0,
-                title: 'With what mingled joy',
-                rating: 3,
-                desc: 'She clutched the matron by the arm, and forcing her into a chair by the bedside, was about to speak, when looking round, she caught sight of the two old women',
-                price: '14.00'
-            },
-            {
-                img: 'assets/images/product-7-md.jpg',
-                id: 0,
-                title: 'With what mingled joy',
-                rating: 3,
-                desc: 'She clutched the matron by the arm, and forcing her into a chair by the bedside, was about to speak, when looking round, she caught sight of the two old women',
-                price: '14.00'
-            }
-        ],
-        mostPopularGames: [
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                id: 0,
-                img: 'assets/images/product-11-xs.jpg',
-                title: 'She gave my mother',
-                rating: 3,
-                price: '14.00'
-            }
-        ],
+        top10Recs: top10Recs,
+        fourFeaturedGames: fourFeaturedGames,
+        mostPopularGames: mostPopularGames,
         allGenres: allGenres,
         maxUID: (await numUsers()) - 2,
         minUID: minUID,
