@@ -9,6 +9,11 @@ const axios = require('axios');
 
 const app = express();
 
+// Returns a random integer between min (included) and max (excluded)
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+  }
+
 // ---- Database Related Work ----
 const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
 
@@ -1023,39 +1028,20 @@ app.get('/store-cart', async (req, res) => {
             minUID: minUID,
         });
     } else {
+        const games = await getUserGameRecs(uid, 10);
+        const gameList = games.recommendations.owned;
+        const gameData = await getGameData(gameList);
+        const gameDictList = [];
+        for (let game of gameData) {
+            gameDictList.push({
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: game.name,
+                id: game.id,
+                price: (game.discount_price && game.discount_price.slice(1)) || (game.original_price && game.original_price.slice(1)) || 'N/A'
+            });
+        }
         res.render('store-cart', {
-            games: [
-                {
-                    title: 'HOWEVER, I HAVE REASON',
-                    id: 1,
-                    img: 'assets/images/product-2-xs.jpg',
-                    price: '32.00'
-                },
-                {
-                    title: 'HOWEVER, I HAVE REASON',
-                    id: 1,
-                    img: 'assets/images/product-2-xs.jpg',
-                    price: '32.00'
-                },
-                {
-                    title: 'HOWEVER, I HAVE REASON',
-                    id: 1,
-                    img: 'assets/images/product-2-xs.jpg',
-                    price: '32.00'
-                },
-                {
-                    title: 'HOWEVER, I HAVE REASON',
-                    id: 1,
-                    img: 'assets/images/product-2-xs.jpg',
-                    price: '32.00'
-                },
-                {
-                    title: 'HOWEVER, I HAVE REASON',
-                    id: 1,
-                    img: 'assets/images/product-2-xs.jpg',
-                    price: '32.00'
-                },
-            ],
+            games: gameDictList,
             allGenres: allGenres,
             maxUID: (await numUsers()) - 2,
             minUID: minUID,

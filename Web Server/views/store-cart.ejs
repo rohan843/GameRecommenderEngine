@@ -114,7 +114,7 @@
                                 <% for( let i = 0; i < games.length; i++ ) { %>                                
                                     <tr>
                                         <td class="nk-product-cart-thumb">
-                                            <a href="/store-product" class="nk-image-box-1 nk-post-image">
+                                            <a href="/store-product?game_id=<%- games[i].id %>" class="nk-image-box-1 nk-post-image">
                                                 <img src="<%- games[i].img %>" alt="<%- games[i].title %>"
                                                     width="115">
                                             </a>
@@ -124,7 +124,7 @@
                                             <div class="nk-gap-1"></div>
 
                                             <h2 class="nk-post-title h4">
-                                                <a href="/store-product"><%- games[i].title %></a>
+                                                <a href="/store-product?game_id=<%- games[i].id %>"><%- games[i].title %></a>
                                             </h2>
                                         </td>
                                         <td class="nk-product-cart-price">
