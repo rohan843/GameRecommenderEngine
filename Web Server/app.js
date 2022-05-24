@@ -604,77 +604,51 @@ app.get('/store', async (req, res) => {
 });
 
 app.get('/store-catalog', async (req, res) => {
+
+    let uid = cookieHandler.getUid(req.cookies);
+    let [user, userGameRecs, featuredGamesList] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15), featuredGames()]);
+    userGameRecs = userGameRecs.recommendations;
+    const top6genres = getTop6Genres(user);
+
+    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
+    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
+    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+    const otherUserBasedRecs = [];
+    for (let i = 0; i < Math.min(4, similarUserBasedGames.length); i++) {
+        otherUserBasedRecs.push({
+            id: similarUserBasedGames[i].id,
+            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+            title: similarUserBasedGames[i].name,
+            price: similarUserBasedGameFeatures[i].price,
+            rating: similarUserBasedGameFeatures[i].rating,
+        });
+    }
+
+    const userRecs = [];
+    for (let i = 0; i < profileBasedGames.length; i++) {
+        const num = getRndInteger(1, 10);
+        userRecs.push({
+            id: profileBasedGames[i].id,
+            img: `assets/images/product-${num}-xs.jpg`,
+            title: profileBasedGames[i].name,
+            price: profileBasedGameFeatures[i].price,
+            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+            rating: profileBasedGameFeatures[i].rating
+        });
+    }
+
     res.render('store-catalog', {
-        genre1: 'Action',
-        genre2: 'MMO',
-        genre3: 'Strategy',
-        otherUserLikes: [
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-        ],
-        searchResults: [
-            {
-                title: 'SO SAYING HE UNBUCKLED',
-                rating: 4,
-                price: '23.00',
-                img: 'assets/images/product-1-xs.jpg',
-                id: 0
-            },
-            {
-                title: 'SO SAYING HE UNBUCKLED',
-                rating: 4,
-                price: '23.00',
-                img: 'assets/images/product-1-xs.jpg',
-                id: 0
-            },
-            {
-                title: 'SO SAYING HE UNBUCKLED',
-                rating: 4,
-                price: '23.00',
-                img: 'assets/images/product-1-xs.jpg',
-                id: 0
-            },
-        ],
-        genreCategories: [
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            },
-            {
-                name: 'Action',
-                genre_id: 1
-            }
-        ],
+        genre1: top6genres[0],
+        genre2: top6genres[1],
+        genre3: top6genres[2],
+        otherUserLikes: otherUserBasedRecs,
+        searchResults: userRecs,
+        genreCategories: allGenres.slice(0, 7),
         allGenres: allGenres,
         maxUID: (await numUsers()) - 2,
         minUID: minUID,

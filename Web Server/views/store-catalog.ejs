@@ -338,7 +338,7 @@
 
                                         <% for( let i=0; i < genreCategories.length; i++ ) { %>
                                             <li><a href="#">
-                                                    <%- genreCategories[i].name %>
+                                                    <%- genreCategories[i].title %>
                                                 </a></li>
                                             <% } %>
 
@@ -387,11 +387,11 @@
 
                                     <% for( let i=0; i < otherUserLikes.length; i++ ) { %>
                                         <div class="nk-widget-post">
-                                            <a href="/store-product" class="nk-post-image">
-                                                <img src="assets/images/product-1-xs.jpg"
+                                            <a href="/store-product?game_id=<%- otherUserLikes[i].id %>" class="nk-post-image">
+                                                <img src="<%- otherUserLikes[i].img %>"
                                                     alt="<%- otherUserLikes[i].title %>">
                                             </a>
-                                            <h3 class="nk-post-title"><a href="/store-product">
+                                            <h3 class="nk-post-title"><a href="/store-product?game_id=<%- otherUserLikes[i].id %>">
                                                     <%- otherUserLikes[i].title %>
                                                 </a>
                                             </h3>
