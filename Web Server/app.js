@@ -606,12 +606,10 @@ app.get('/store', async (req, res) => {
 app.get('/store-catalog', async (req, res) => {
 
     let uid = cookieHandler.getUid(req.cookies);
-    let [user, userGameRecs, featuredGamesList] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15), featuredGames()]);
+    let [user, userGameRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15)]);
     userGameRecs = userGameRecs.recommendations;
     const top6genres = getTop6Genres(user);
 
-    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
-    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
     const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
     const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
     const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));

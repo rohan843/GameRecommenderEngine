@@ -259,11 +259,11 @@
                             <% for( let i=0; i < searchResults.length; i++ ) { %>
                                 <div class="col-md-6">
                                     <div class="nk-product-cat">
-                                        <a class="nk-product-image" href="/store-product">
+                                        <a class="nk-product-image" href="/store-product?game_id=<%- searchResults[i].id %>">
                                             <img src="<%- searchResults[i].img %>" alt="<%- searchResults[i].title %>">
                                         </a>
                                         <div class="nk-product-cont">
-                                            <h3 class="nk-product-title h5"><a href="/store-product">
+                                            <h3 class="nk-product-title h5"><a href="/store-product?game_id=<%- searchResults[i].id %>">
                                                     <%- searchResults[i].title %>
                                                 </a></h3>
                                             <div class="nk-gap-1"></div>
