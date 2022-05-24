@@ -317,58 +317,60 @@ app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
-    res.redirect('store');
-
     let uid = cookieHandler.getUid(req.cookies);
     const user = await userDetails(uid);
-    const top6genres = getTop6Genres(user);
-    // const userGameRecs = getUserGameRecs(uid, 5);
+    const top6genres = ['Casual', 'Strategy', 'RPG', 'Photo Editing', 'Valve', 'Sports'] || getTop6Genres(user);
+    const userGameRecs = (await getUserGameRecs(uid, 5)).recommendations;
+    const featuredGamesList = await featuredGames();
+    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
+    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
+    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+    const userRecs = [];
+    for (let i = 0; i < profileBasedGames.length; i++) {
+        const num = getRndInteger(1, 10);
+        userRecs.push({
+            id: profileBasedGames[i].id,
+            img: `assets/images/post-${num}.jpg`,            
+            sqImg: `assets/images/post-${num}-sm.jpg`,
+            title: profileBasedGames[i].name,
+            price: profileBasedGameFeatures[i].price,
+            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+            rating: profileBasedGameFeatures[i].rating
+        });
+    }
+
+    const otherUserBasedRecs = [];
+    for (let i = 0; i < similarUserBasedGames.length; i++) {
+        otherUserBasedRecs.push({
+            id: similarUserBasedGames[i].id,
+            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+            title: similarUserBasedGames[i].name,
+            price: similarUserBasedGameFeatures[i].price,
+            rating: similarUserBasedGameFeatures[i].rating,
+        });
+    }
+
+
+    const fourFeaturedGames = [];
+    for (let i = 0; i < featuredGamesData.length; i++) {
+        const num = getRndInteger(1, 17);
+        fourFeaturedGames.push({
+            img: `assets/images/product-${num}-xs.jpg`,
+            id: featuredGamesData[i].id,
+            title: featuredGamesData[i].name,
+            rating: featuredGamesFeatures[i].rating,
+            price: featuredGamesFeatures[i].price
+        });
+    }
 
     res.render('index', {
-        bestSeller: [
-            {
-                title: "She gave my mother",
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                title: "She gave my mother",
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                title: "She gave my mother",
-                rating: 3,
-                price: '14.00'
-            },
-            {
-                title: "She gave my mother",
-                rating: 3,
-                price: '14.00'
-            }
-        ],
-        otherUserLikes: [
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-            {
-                title: 'So saying he unbuckled',
-                rating: 4,
-                price: '23.00',
-            },
-        ],
+        bestSeller: fourFeaturedGames,
+        otherUserLikes: otherUserBasedRecs,
         latestPics: [
             {
                 imgLink: 'assets/images/gallery-1.jpg',
@@ -550,62 +552,7 @@ app.get('/', async (req, res) => {
         genre1: top6genres[0],
         genre2: top6genres[1],
         genre3: top6genres[2],
-        userRecs: [
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                rating: 3,
-                sqImg: 'assets/images/post-1-sm.jpg',
-                img: 'assets/images/post-1.jpg',
-                genre: 'MMO',
-            },
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                img: 'assets/images/post-1.jpg',
-                sqImg: 'assets/images/post-1-sm.jpg',
-                genre: 'MMO',
-                rating: 3
-            },
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                genre: 'MMO',
-                img: 'assets/images/post-1.jpg',
-                sqImg: 'assets/images/post-1-sm.jpg',
-                rating: 3
-            },
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                genre: 'MMO',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                img: 'assets/images/post-1.jpg',
-                sqImg: 'assets/images/post-1-sm.jpg',
-                rating: 3
-            },
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                genre: 'MMO',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                img: 'assets/images/post-1.jpg',
-                sqImg: 'assets/images/post-1-sm.jpg',
-                rating: 3
-            },
-            {
-                title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
-                sqImg: 'assets/images/post-1-sm.jpg',
-                desc: 'With what mingled joy and sorrow do I take up the pen to write to my dearest friend! Oh, what a change between to-day and yesterday! Now I am friendless and alone...',
-                genre: 'MMO',
-                shortDesc: 'With what mingled joy and sorrow do I take up the pen to w...',
-                img: 'assets/images/post-1.jpg',
-                rating: 3
-            }
-        ],
+        userRecs: userRecs,
         allGenres: allGenres,
         maxUID: (await numUsers()) - 2,
         minUID: minUID,
