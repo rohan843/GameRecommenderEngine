@@ -120,74 +120,14 @@ const numGames = async () => {
     }
 };
 
-const genres = [
-    'Casual',
-    'Strategy',
-    'RPG',
-    'Photo Editing',
-    'Valve',
-    'Sports',
-    'Software Training',
-    'Accounting',
-    'Adventure',
-    'Indie',
-    'Audio Production',
-    'Animation & Modeling',
-    'Game Development',
-    'Simulation',
-    'Design & Illustration',
-    'Education',
-    'Utilities',
-    'Movie',
-    'Early Access',
-    'Racing',
-    'Action',
-    'Web Publishing',
-    'Video Production',
-    'Free to Play',
-    'Massively Multiplayer',
-    'Simplified Chinese',
-    'Ukrainian',
-    'Dutch',
-    'Norwegian',
-    'Japanese',
-    'Arabic',
-    'Finnish',
-    'Portuguese',
-    'Turkish',
-    '#lang_#lang_#lang_english**#lang_full_audio*#lang_full_audio',
-    'Hungarian',
-    'Romanian',
-    'Korean',
-    'Traditional Chinese',
-    'Greek',
-    '#lang_german;',
-    'Vietnamese',
-    'Portuguese - Brazil',
-    'Russian',
-    '#lang_#lang_spanish*#lang_full_audio',
-    'Polish',
-    'Czech',
-    '(all with full audio support)',
-    'English',
-    'Danish',
-    'Thai',
-    'Italian',
-    'Spanish - Spain',
-    'Slovakian',
-    'German',
-    'Spanish - Latin America',
-    'Swedish',
-    'French',
-    'Bulgarian'
-];
+const genreDict = { 0: 'Casual', 1: 'Strategy', 2: 'RPG', 3: 'Photo Editing', 4: 'Valve', 5: 'Sports', 6: 'Software Training', 7: 'Accounting', 8: 'Adventure', 9: 'Indie', 10: 'Audio Production', 11: 'Animation & Modeling', 12: 'Game Development', 13: 'Simulation', 14: 'Design & Illustration', 15: 'Education', 16: 'Utilities', 17: 'Movie', 18: 'Early Access', 19: 'Racing', 20: 'Action', 21: 'Web Publishing', 22: 'Video Production', 23: 'Free to Play', 24: 'Massively Multiplayer', 25: 'Simplified Chinese', 26: 'Ukrainian', 27: 'Dutch', 28: 'Norwegian', 29: 'Japanese', 30: 'Arabic', 31: 'Finnish', 32: 'Portuguese', 33: 'Turkish', 34: '#lang_#lang_#lang_english**#lang_full_audio*#lang_full_audio', 35: 'Hungarian', 36: 'Romanian', 37: 'Korean', 38: 'Traditional Chinese', 39: 'Greek', 40: '#lang_german;', 41: 'Vietnamese', 42: 'Portuguese - Brazil', 43: 'Russian', 44: '#lang_#lang_spanish*#lang_full_audio', 45: 'Polish', 46: 'Czech', 47: '(all with full audio support)', 48: 'English', 49: 'Danish', 50: 'Thai', 51: 'Italian', 52: 'Spanish - Spain', 53: 'Slovakian', 54: 'German', 55: 'Spanish - Latin America', 56: 'Swedish', 57: 'French', 58: 'Bulgarian' };
 
 const getUser3GenresAndAge = (user) => {
     let top3Genres = [];
-    for (let g of genres) {
+    for (let g of Object.keys(genreDict)) {
         top3Genres.push({
-            genre: g,
-            val: user[g]
+            genre: genreDict[g],
+            val: user[genreDict[g]]
         });
     }
 
@@ -204,10 +144,10 @@ const getUser3GenresAndAge = (user) => {
 // Inputs a user object and returns the 6 favourite genres of the user.
 const getTop6Genres = (user) => {
     let top6Genres = [];
-    for (let g of genres) {
+    for (let g of Object.keys(genreDict)) {
         top6Genres.push({
-            genre: g,
-            val: user[g]
+            genre: genreDict[g],
+            val: user[genreDict[g]]
         });
     }
 
@@ -264,24 +204,13 @@ const userDetails = async (uid) => {
 
 
 // ---- Constants ----
-const allGenres = [
-    {
-        title: 'Action',
-        genre_id: 2
-    },
-    {
-        title: 'Action',
-        genre_id: 2
-    },
-    {
-        title: 'Action',
-        genre_id: 3
-    },
-    {
-        title: 'Merge By OR',
-        genre_id: -1
-    },
-];
+const allGenres = [];
+for (let gid of Object.keys(genreDict)) {
+    allGenres.push({
+        title: genreDict[gid],
+        genre_id: gid
+    });
+}
 const minUID = 0;
 
 // ---- Recommender API functions ----
@@ -669,7 +598,7 @@ app.get('/store-product', async (req, res) => {
     const similarGameData = sortGameData(similarUserRecs, await getGameData(similarUserRecs));
     const similarGameFeatureData = sortGameData(similarUserRecs, await getGameFeatureData(similarUserRecs));
     otherUserLikes = [];
-    for(let i = 0; i < similarGameData.length; i++) {
+    for (let i = 0; i < similarGameData.length; i++) {
         otherUserLikes.push({
             title: similarGameData[i].name,
             rating: similarGameFeatureData[i].rating,
@@ -725,7 +654,7 @@ app.get('/store-product', async (req, res) => {
         const relatedGameData = sortGameData(relatedRecs, await getGameData(relatedRecs));
         const relatedGameFeatureData = sortGameData(relatedRecs, await getGameFeatureData(relatedRecs));
         const relatedProducts = [];
-        for(let i = 0; i < relatedGameData.length; i++) {
+        for (let i = 0; i < relatedGameData.length; i++) {
             relatedProducts.push({
                 img: `assets/images/product-${getRndInteger(0, 17)}-xs.jpg`,
                 title: relatedGameData[i].name,
@@ -739,28 +668,7 @@ app.get('/store-product', async (req, res) => {
         const gameData = sortGameData(game_ids, await getGameData(game_ids));
         const gameFeatures = (await getGameFeatureData([game_id]))[0];
         res.render('store-product', {
-            genreCategories: [
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                }
-            ],
+            genreCategories: allGenres.slice(0, 7),
             otherUserLikes: otherUserLikes,
             relatedProducts: relatedProducts,
             mainProductDesc: ((gameData.length >= 1) && {
