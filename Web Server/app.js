@@ -695,7 +695,7 @@ app.get('/store-product', async (req, res) => {
             mainProductDesc: ((gameData.length >= 1) && {
                 id: gameData[0].id,
                 name: gameData[0].name,
-                platformSpecs: gameData[0].recommended_requirements,
+                platformSpecs: gameData[0].recommended_requirements || 'N/A',
                 price: parseFloat(gameFeatures.price).toFixed(2),
                 desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
                 tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
