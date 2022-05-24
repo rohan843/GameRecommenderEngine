@@ -320,8 +320,6 @@ app.use(express.static('public'));
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
 
-    // TODO: Render games by genre.
-
     let uid = cookieHandler.getUid(req.cookies);
     // const user = await userDetails(uid);
     // const top6genres = getTop6Genres(user);
