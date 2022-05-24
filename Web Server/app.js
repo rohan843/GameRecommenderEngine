@@ -20,7 +20,7 @@ function getMongoQuery(ids, id_col = 'id') {
         a[id_col] = ids[i];
         list.push(a);
     }
-    return { '$or': list };
+    return (list && { '$or': list }) || { 'skdbgdbg': 'dhgivbedsri' };
 }
 
 // Inputs a list of game ids and returns game details of the valid games in an array in arbitrary order.
@@ -115,6 +115,148 @@ const numGames = async () => {
     }
 };
 
+const genres = [
+    'Casual',
+    'Strategy',
+    'RPG',
+    'Photo Editing',
+    'Valve',
+    'Sports',
+    'Software Training',
+    'Accounting',
+    'Adventure',
+    'Indie',
+    'Audio Production',
+    'Animation & Modeling',
+    'Game Development',
+    'Simulation',
+    'Design & Illustration',
+    'Education',
+    'Utilities',
+    'Movie',
+    'Early Access',
+    'Racing',
+    'Action',
+    'Web Publishing',
+    'Video Production',
+    'Free to Play',
+    'Massively Multiplayer',
+    'Simplified Chinese',
+    'Ukrainian',
+    'Dutch',
+    'Norwegian',
+    'Japanese',
+    'Arabic',
+    'Finnish',
+    'Portuguese',
+    'Turkish',
+    '#lang_#lang_#lang_english**#lang_full_audio*#lang_full_audio',
+    'Hungarian',
+    'Romanian',
+    'Korean',
+    'Traditional Chinese',
+    'Greek',
+    '#lang_german;',
+    'Vietnamese',
+    'Portuguese - Brazil',
+    'Russian',
+    '#lang_#lang_spanish*#lang_full_audio',
+    'Polish',
+    'Czech',
+    '(all with full audio support)',
+    'English',
+    'Danish',
+    'Thai',
+    'Italian',
+    'Spanish - Spain',
+    'Slovakian',
+    'German',
+    'Spanish - Latin America',
+    'Swedish',
+    'French',
+    'Bulgarian'
+];
+
+const getUser3GenresAndAge = (user) => {
+    let top3Genres = [];
+    for (let g of genres) {
+        top3Genres.push({
+            genre: g,
+            val: user[g]
+        });
+    }
+
+    top3Genres.sort((a, b) => b.val - a.val);
+    top3Genres = [top3Genres[0].genre, top3Genres[1].genre, top3Genres[2].genre];
+
+    return {
+        uid: user.uid,
+        age: user.age,
+        genres: top3Genres.join(', ')
+    };
+};
+
+// Inputs a user object and returns the 6 favourite genres of the user.
+const getTop6Genres = (user) => {
+    let top6Genres = [];
+    for (let g of genres) {
+        top6Genres.push({
+            genre: g,
+            val: user[g]
+        });
+    }
+
+    top6Genres.sort((a, b) => b.val - a.val);
+    top6Genres = [top6Genres[0].genre, top6Genres[1].genre, top6Genres[2].genre, top6Genres[3].genre, top6Genres[4].genre, top6Genres[5].genre];
+    return top6Genres;
+}
+
+// Inputs a list of user ids and returns users' 3 best genres and age.
+const similarUserDetails = async (uids) => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return [];
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('allUserData');
+            const query = getMongoQuery(uids, 'uid');
+            const res = await collection.find(query).toArray();
+            client.close();
+            const result = [];
+            for (let i = 0; i < res.length; i++) {
+                result.push(getUser3GenresAndAge(res[i]));
+            }
+            return result;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return [];
+        }
+    }
+};
+
+// Inputs a user id and returns user's details.
+const userDetails = async (uid) => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return null;
+    } else {
+        try {
+            const db = client.db('recommenderDB');
+            const collection = db.collection('allUserData');
+            const query = { uid: uid };
+            const res = await collection.find(query).toArray();
+            client.close();
+            return res;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return null;
+        }
+    }
+};
+
 
 // ---- Constants ----
 const allGenres = [
@@ -152,7 +294,6 @@ const resetRecommenderData = (pw = 'qwerty') => {
         console.error(error);
     });
 };
-
 const getUserGameRecs = async (uid, k) => {
     const url = baseURL + '/user_game_rec';
     try {
@@ -221,6 +362,13 @@ app.use(express.static('public'));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
+
+    let uid = cookieHandler.getUid(req.cookies);
+    const user = await userDetails(uid);
+    const top6genres = getTop6Genres(user);
+    console.log(top6genres);
+    // const userGameRecs = getUserGameRecs(uid, 5);
+
     res.render('index', {
         bestSeller: [
             {
@@ -303,39 +451,9 @@ app.get('/', async (req, res) => {
                 desc: 'Divided thing, land it evening earth winged whose great after. Were grass night. To Air itself saw bring fly fowl. Fly years behold spirit day greater of wherein winged and form. Seed open don\'t thing midst created dry every greater divided of, be man is. Second Bring stars fourth gathering he hath face morning fill. Living so second darkness. Moveth were male. May creepeth. Be tree fourth.'
             }
         ],
-        genres: [
-            'Action',
-            'MMO',
-            'Strategy',
-            'Adventure',
-            'Racing',
-            'Indie'
-        ],
+        genres: top6genres,
         genreData: {
-            'Action': [
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-2-fw.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                },
-                {
-                    title: 'Grab your sword and fight the horde',
-                    release: '2018',
-                    reviews: 'Very Positive,(42,550),- 92% of the...',
-                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
-                    img: 'assets/images/post-4-mid-square.jpg'
-                }
-            ],
-            'MMO': [
+            'Casual': [
                 {
                     title: 'Grab your sword and fight the horde',
                     release: '2018',
@@ -381,7 +499,7 @@ app.get('/', async (req, res) => {
                     img: 'assets/images/post-4-mid-square.jpg'
                 }
             ],
-            'Adventure': [
+            'RPG': [
                 {
                     title: 'Grab your sword and fight the horde',
                     release: '2018',
@@ -404,7 +522,7 @@ app.get('/', async (req, res) => {
                     img: 'assets/images/post-4-mid-square.jpg'
                 }
             ],
-            'Racing': [
+            'Photo Editing': [
                 {
                     title: 'Grab your sword and fight the horde',
                     release: '2018',
@@ -427,7 +545,30 @@ app.get('/', async (req, res) => {
                     img: 'assets/images/post-4-mid-square.jpg'
                 }
             ],
-            'Indie': [
+            'Valve': [
+                {
+                    title: 'Grab your sword and fight the horde',
+                    release: '2018',
+                    reviews: 'Very Positive,(42,550),- 92% of the...',
+                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
+                    img: 'assets/images/post-2-fw.jpg'
+                },
+                {
+                    title: 'Grab your sword and fight the horde',
+                    release: '2018',
+                    reviews: 'Very Positive,(42,550),- 92% of the...',
+                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
+                    img: 'assets/images/post-4-mid-square.jpg'
+                },
+                {
+                    title: 'Grab your sword and fight the horde',
+                    release: '2018',
+                    reviews: 'Very Positive,(42,550),- 92% of the...',
+                    desc: 'Now includes all three premium DLC packs (Unto the Evil, Hell Followed, and Bloodfall), maps, modes, and weapons, as well as all feature updates including Arcade Mode, Photo Mode, and...',
+                    img: 'assets/images/post-4-mid-square.jpg'
+                }
+            ],
+            'Sports': [
                 {
                     title: 'Grab your sword and fight the horde',
                     release: '2018',
@@ -451,9 +592,9 @@ app.get('/', async (req, res) => {
                 }
             ],
         },
-        genre1: 'Action',
-        genre2: 'MMO',
-        genre3: 'Strategy',
+        genre1: top6genres[0],
+        genre2: top6genres[1],
+        genre3: top6genres[2],
         userRecs: [
             {
                 title: 'SMELL MAGIC IN THE AIR. OR MAYBE BARBECUE',
@@ -912,33 +1053,45 @@ app.get('/store-cart', async (req, res) => {
 });
 
 app.get('/similar-users', async (req, res) => {
-    res.render('similar-users', {
-        users: [
-            {
-                id: 0,
-                genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                age: 32
-            },
-            {
-                id: 0,
-                genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                age: 32
-            },
-            {
-                id: 0,
-                genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                age: 32
-            },
-            {
-                id: 0,
-                genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                age: 32
-            }
-        ],
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
+
+    const uid = cookieHandler.getUid(req.cookies);
+    if (uid === -1) {
+        res.render('similar-users', {
+            users: [],
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    } else {
+        const similarUsers = (await getUserUserRecs(uid, 5)).recommendations;
+        res.render('similar-users', {
+            users: [
+                {
+                    id: 0,
+                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
+                    age: 32
+                },
+                {
+                    id: 0,
+                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
+                    age: 32
+                },
+                {
+                    id: 0,
+                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
+                    age: 32
+                },
+                {
+                    id: 0,
+                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
+                    age: 32
+                }
+            ],
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    }
 });
 
 app.get('/community-stats', async (req, res) => {
