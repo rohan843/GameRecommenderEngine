@@ -1064,29 +1064,9 @@ app.get('/similar-users', async (req, res) => {
         });
     } else {
         const similarUsers = (await getUserUserRecs(uid, 5)).recommendations;
+        const similarUsersDetails = await similarUserDetails(similarUsers);
         res.render('similar-users', {
-            users: [
-                {
-                    id: 0,
-                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                    age: 32
-                },
-                {
-                    id: 0,
-                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                    age: 32
-                },
-                {
-                    id: 0,
-                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                    age: 32
-                },
-                {
-                    id: 0,
-                    genres: ['Early Access', 'Japanese', 'Turkish'].join(', '),
-                    age: 32
-                }
-            ],
+            users: similarUsersDetails,
             allGenres: allGenres,
             maxUID: (await numUsers()) - 2,
             minUID: minUID,
