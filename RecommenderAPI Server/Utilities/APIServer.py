@@ -179,7 +179,7 @@ def get_genre_based_recs():
         return get_json_based_response(400, desc='Genres not provided.')
     genres = request.args.get('genres')
     if not genres:
-        return get_json_based_response(400, desc='Genres list empty.')
+        return get_json_based_response(200, desc='Genres list empty.')
 
     # ---- Get merge_by_and parameter ----
     if 'merge_by_and' not in request.args:
