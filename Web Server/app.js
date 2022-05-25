@@ -154,12 +154,13 @@ const getTop6Genres = (user) => {
     for (let g of Object.keys(genreDict)) {
         top6Genres.push({
             genre: genreDict[g],
-            val: user[genreDict[g]]
+            val: user[genreDict[g]],
+            id: g,
         });
     }
 
     top6Genres.sort((a, b) => b.val - a.val);
-    top6Genres = [top6Genres[0].genre, top6Genres[1].genre, top6Genres[2].genre, top6Genres[3].genre, top6Genres[4].genre, top6Genres[5].genre];
+    // top6Genres = [top6Genres[0].genre, top6Genres[1].genre, top6Genres[2].genre, top6Genres[3].genre, top6Genres[4].genre, top6Genres[5].genre];
     return top6Genres;
 }
 

@@ -214,8 +214,8 @@
                                 <img src="assets/images/icon-mouse.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#">
-                                        <%- genre1 %>
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre1.id %>">
+                                        <%- genre1.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
                             </div>
@@ -227,8 +227,8 @@
                                 <img src="assets/images/icon-gamepad.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#">
-                                        <%- genre2 %>
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre2.id %>">
+                                        <%- genre2.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
                             </div>
@@ -240,8 +240,8 @@
                                 <img src="assets/images/icon-gamepad-2.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#">
-                                        <%- genre3 %>
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre3.id %>">
+                                        <%- genre3.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
                             </div>
@@ -315,21 +315,21 @@
             -->
                         <aside class="nk-sidebar nk-sidebar-right nk-sidebar-sticky">
 
-                            <div class="nk-widget">
+                            <!-- <div class="nk-widget">
                                 <div class="nk-widget-content">                                    
                                     <form action="#" class="nk-form nk-form-style-1" novalidate="novalidate">
                                         <div class="input-group">
                                             <select name="select" class="form-control js-example-basic-multiple" multiple="multiple">
-                                                <% for( let i = 0; i < allGenres.length; i++ ) { %>
-                                                    <option value="<%- allGenres[i].genre_id %>"><%- allGenres[i].title %></option>
-                                                <% } %>
+                                                <%# for( let i = 0; i < allGenres.length; i++ ) { %>
+                                                    <option value="<%#- allGenres[i].genre_id %>"><%#- allGenres[i].title %></option>
+                                                <%# } %>
                                             </select><button class="nk-btn nk-btn-color-main-1"><span
                                                     class="ion-search"></span></button>
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                            <div class="nk-gap-3"></div>
+                            </div> -->
+                            <!-- <div class="nk-gap-3"></div> -->
                             <div class="nk-widget nk-widget-highlighted">
                                 <h4 class="nk-widget-title"><span><span class="text-main-1">Category</span> Menu</span>
                                 </h4>
@@ -337,7 +337,7 @@
                                     <ul class="nk-widget-categories">
 
                                         <% for( let i=0; i < genreCategories.length; i++ ) { %>
-                                            <li><a href="#">
+                                            <li><a href="#" genre_id="<%- genreCategories[i].genre_id %>">
                                                     <%- genreCategories[i].title %>
                                                 </a></li>
                                             <% } %>
