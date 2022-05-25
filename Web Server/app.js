@@ -662,13 +662,29 @@ app.get('/store-catalog', async (req, res) => {
 app.get('/search', async (req, res) => {
 
     let uid = cookieHandler.getUid(req.cookies);
-    let [user, userGameRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15)]);
+
+    let queryGenres = req.query.genres;
+    let queryMergeByAnd = req.query.merge_by_and;
+    if (!queryMergeByAnd || queryMergeByAnd.toLowerCase() !== 'false') {
+        queryMergeByAnd = 'true';
+    }
+
+    let regexGenreListCheck = /^(\d(\d)*,)*\d(\d*)$/;
+
+    if (!queryGenres || !regexGenreListCheck.test(queryGenres)) {
+        queryGenres = [];
+    } else {
+        queryGenres = queryGenres.trim().split(',');
+    }
+
+    let [user, userGameRecs, genreRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 4), getUserGameGenreRecs(uid, 15, queryGenres, queryMergeByAnd)]);
     userGameRecs = userGameRecs.recommendations;
+    genreRecs = genreRecs.recommendations;
     const top6genres = getTop6Genres(user);
 
-    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+    const genreBasedGames = sortGameData(genreRecs, await getGameData(genreRecs));
+    const genreBasedGameFeatures = sortGameData(genreRecs, await getGameFeatureData(genreRecs));
     const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
-    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
     const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
 
     const otherUserBasedRecs = [];
@@ -683,16 +699,16 @@ app.get('/search', async (req, res) => {
     }
 
     const userRecs = [];
-    for (let i = 0; i < profileBasedGames.length; i++) {
+    for (let i = 0; i < genreBasedGames.length; i++) {
         const num = getRndInteger(1, 10);
         userRecs.push({
-            id: profileBasedGames[i].id,
+            id: genreBasedGames[i].id,
             img: `assets/images/product-${num}-xs.jpg`,
-            title: profileBasedGames[i].name,
-            price: profileBasedGameFeatures[i].price,
-            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',            
-            genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
-            rating: profileBasedGameFeatures[i].rating
+            title: genreBasedGames[i].name,
+            price: genreBasedGameFeatures[i].price,
+            desc: genreBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            genre: (genreBasedGames[i].genre && genreBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+            rating: genreBasedGameFeatures[i].rating
         });
     }
 
