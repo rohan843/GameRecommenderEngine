@@ -2,11 +2,37 @@
 # from pymongo import MongoClient
 #
 # client = MongoClient('mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/')
-# db = client.recommenderDB
+# db = client.sysDB
 # gameFeaturesCollection = db.gameFeatures
 # allGameDataCollection = db.allGameData
 # allUserDataCollection = db.allUserData
+# allUserGenreBehaviourCollection = db.userGameBehaviour
 # userGameInteractionCollection = db.userGameInteractions
+
+# Uploading user genre behaviour data
+# userGameBehaviour = pd.read_csv('../Datasets/userGameBehaviour.csv')
+# lst = []
+#
+#
+# def store_all_user_genre_behaviour_data_to_db(x):
+#     post = dict(
+#         [
+#             (col, x[col]) for col in x.index
+#         ]
+#     )
+#     post['uid'] = int(post['uid'])
+#     post['game_id'] = int(post['game_id'])
+#     post['owned'] = int(post['owned'])
+#     post['visits'] = int(post['visits'])
+#     post['rating'] = int(post['rating'])
+#     lst.append(post)
+#
+#
+# print(userGameBehaviour.head())
+# userGameBehaviour.apply(store_all_user_genre_behaviour_data_to_db, axis=1)
+# print(lst)
+# allUserGenreBehaviourCollection.insert_many(lst)
+# var = 1 == 1
 
 # Uploading user data
 # userData = pd.read_csv('../Datasets/userDataWithGenres.csv').drop('Unnamed: 0', 1).drop('_id', 1)

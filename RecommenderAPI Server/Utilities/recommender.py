@@ -405,6 +405,8 @@ class Recommender:
         self.gameFeatures = db.gameFeatures
         self.userGameInteractions = db.userGameInteractions
         self.allGameData = db.allGameData
+        self.sysDB = client.sysDB
+        self.userGameBehaviour = self.sysDB.userGameBehaviour
 
         # ---- Converting MongoDB Collections to DataFrames ----
         user_game_interactions = self._get_dataframe_from_collection(db.userGameInteractions)
@@ -630,7 +632,7 @@ class Recommender:
         :return: A list of games that the user owns.
         """
         return [
-            game['game_id'] for game in self.userGameInteractions.find(
+            game['game_id'] for game in self.userGameBehaviour.find(
                 {
                     'uid': uid,
                     'owned': 1
