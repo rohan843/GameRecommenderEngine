@@ -120,8 +120,13 @@ const numGames = async () => {
     }
 };
 
+// Inverts a javascript object ({key: value} -> {value: key}).
 const f = obj => Object.fromEntries(Object.entries(obj).map(a => a.reverse()))
+
+// Maps genre ids to genre names.
 const genreDict = { 0: 'Casual', 1: 'Strategy', 2: 'RPG', 3: 'Photo Editing', 4: 'Valve', 5: 'Sports', 6: 'Software Training', 7: 'Accounting', 8: 'Adventure', 9: 'Indie', 10: 'Audio Production', 11: 'Animation & Modeling', 12: 'Game Development', 13: 'Simulation', 14: 'Design & Illustration', 15: 'Education', 16: 'Utilities', 17: 'Movie', 18: 'Early Access', 19: 'Racing', 20: 'Action', 21: 'Web Publishing', 22: 'Video Production', 23: 'Free to Play', 24: 'Massively Multiplayer', 25: 'Simplified Chinese', 26: 'Ukrainian', 27: 'Dutch', 28: 'Norwegian', 29: 'Japanese', 30: 'Arabic', 31: 'Finnish', 32: 'Portuguese', 33: 'Turkish', 34: '#lang_#lang_#lang_english**#lang_full_audio*#lang_full_audio', 35: 'Hungarian', 36: 'Romanian', 37: 'Korean', 38: 'Traditional Chinese', 39: 'Greek', 40: '#lang_german;', 41: 'Vietnamese', 42: 'Portuguese - Brazil', 43: 'Russian', 44: '#lang_#lang_spanish*#lang_full_audio', 45: 'Polish', 46: 'Czech', 47: '(all with full audio support)', 48: 'English', 49: 'Danish', 50: 'Thai', 51: 'Italian', 52: 'Spanish - Spain', 53: 'Slovakian', 54: 'German', 55: 'Spanish - Latin America', 56: 'Swedish', 57: 'French', 58: 'Bulgarian' };
+
+// Maps genre names to genre ids.
 const genreDictRev = f(genreDict);
 
 const getUser3GenresAndAge = (user) => {

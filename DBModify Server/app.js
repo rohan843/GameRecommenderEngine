@@ -3,6 +3,7 @@ const express = require('express');
 const parser = require('body-parser');
 const json = require('body-parser/lib/types/json');
 const MongoClient = require('mongodb').MongoClient;
+const axios = require('axios')
 
 // ---- DB Related work ----
 const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
@@ -75,6 +76,22 @@ const newUserData = {
     "Bulgarian": 0.0
 };
 
+// ---- Recommender API functions ----
+const baseURL = 'http://127.0.0.1:5000';
+const resetRecommenderData = (pw = 'qwerty') => {
+    const url = baseURL + '/refresh_model_data';
+    axios.post(url, {}, {
+        headers: {
+            pw: pw
+        }
+    }).then(res => {
+        console.log(`statusCode: ${res.status}`);
+        console.log(res);
+    }).catch(error => {
+        console.error(error);
+    });
+};
+
 
 // ---- API Endpoints ----
 app.post('/new_user_refresh', (req, res) => {
@@ -87,6 +104,7 @@ app.post('/new_user_refresh', (req, res) => {
         dbo.collection("allUserData").updateOne(myquery, newValues, function (err, result) {
             if (err) throw err;
             res.send({ message: 'New user refreshed.' });
+            resetRecommenderData();
             db.close();
         });
     });
