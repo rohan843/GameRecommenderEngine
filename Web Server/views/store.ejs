@@ -303,11 +303,11 @@
                     <% for( let i=0; i < mostPopularGames.length; i++ ) { %>
                         <div class="col-lg-4 col-md-6">
                             <div class="nk-product-cat">
-                                <a class="nk-product-image" href="/store-product">
+                                <a class="nk-product-image" href="/store-product?game_id=<%- mostPopularGames[i].id %>">
                                     <img src="<%- mostPopularGames[i].img %>" alt="<%- mostPopularGames[i].title %>">
                                 </a>
                                 <div class="nk-product-cont">
-                                    <h3 class="nk-product-title h5"><a href="/store-product">
+                                    <h3 class="nk-product-title h5"><a href="/store-product?game_id=<%- mostPopularGames[i].id %>">
                                             <%- mostPopularGames[i].title %>
                                         </a></h3>
                                     <div class="nk-gap-1"></div>
