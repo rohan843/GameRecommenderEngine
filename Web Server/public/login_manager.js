@@ -32,21 +32,29 @@ function showToast(msg, time = 3000) {
     setTimeout(function () { x.className = x.className.replace("show", ""); }, time);
 }
 
-loginForm = document.getElementById('login');
-logoutLink = document.getElementById('logout');
-uid = document.getElementById('uid');
-signinCloseBtn = document.getElementById('signinCloseBtn');
-signinHead = document.getElementById('signinHead');
-maxUID = parseInt(document.getElementById('maxUID').value);
-minUID = parseInt(document.getElementById('minUID').value);
+const loginForm = document.getElementById('login');
+const logoutLink = document.getElementById('logout');
+const uid = document.getElementById('uid');
+const signinCloseBtn = document.getElementById('signinCloseBtn');
+const signinHead = document.getElementById('signinHead');
+const maxUID = parseInt(document.getElementById('maxUID').value);
+const minUID = parseInt(document.getElementById('minUID').value);
+const newUserEntry = document.getElementById('newUserDemo');
+const resetNewUser = document.getElementById('resetNewUser');
+
 
 uid.value = '';
+const uidCookie = getCookie('uid');
 
-if (getCookie('uid') == null || getCookie('uid') == -1) {
+if (uidCookie == null || uidCookie == -1) {
     setCookie('uid', -1);
     showToast('Please login to view personalized recommendations.', 3000);
+} else if (uidCookie == -2) {
+    signinHead.innerHTML = `<span class="text-main-1">New User</span> Logged In`;
+    newUserEntry.innerText = `Exit demo mode`;
+    resetNewUser.style.display = 'block';
 } else {
-    signinHead.innerHTML = `<span class="text-main-1">User ${getCookie('uid')}</span> Logged In`;
+    signinHead.innerHTML = `<span class="text-main-1">User ${uidCookie}</span> Logged In`;
 }
 
 signinCloseBtn.addEventListener('click', (e) => {
@@ -56,7 +64,6 @@ signinCloseBtn.addEventListener('click', (e) => {
 loginForm.addEventListener('submit', (e) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('here');
     try {
         id = parseInt(uid.value);
         // uid.value = '';
@@ -66,7 +73,10 @@ loginForm.addEventListener('submit', (e) => {
     if (id >= minUID && id <= maxUID) {
         setCookie('uid', id);
         showToast(`Successfully signed in as User ${id}.`);
+        location.reload();
         signinHead.innerHTML = `<span class="text-main-1">User ${getCookie('uid')}</span> Logged In`;
+        newUserEntry.innerText = `Enter new user demo mode`;
+        resetNewUser.style.display = 'none';
     }
     else
         showToast(`Please enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
@@ -81,6 +91,39 @@ logoutLink.addEventListener('click', (e) => {
     } else {
         setCookie('uid', -1);
         showToast('Successfully logged out.');
+        location.reload();
+        newUserEntry.innerText = `Enter new user demo mode`;
+        resetNewUser.style.display = 'none';
         signinHead.innerHTML = `<span class="text-main-1">Sign</span> In`;
     }
+});
+
+newUserEntry.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    uid.value = '';
+    if (getCookie('uid') == -2) {
+        showToast('Exiting new user mode.');
+        location.reload();
+        setCookie('uid', -1);
+        signinHead.innerHTML = `<span class="text-main-1">Sign</span> In`;
+        newUserEntry.innerText = `Enter new user demo mode`;
+        resetNewUser.style.display = 'none';
+    } else {
+        setCookie('uid', -2);
+        newUserEntry.innerText = `Exit demo mode`;
+        signinHead.innerHTML = `<span class="text-main-1">New User</span> Logged In`;
+        showToast('Successfully entered new user mode.');
+        location.reload();
+        resetNewUser.style.display = 'block';
+        alert("You have entered a new user demo mode. This mode is intended to demonstrate how the recommender adapts to the behaviour of a newly signed up user. It is assumed that while signing up, this user chose ADVENTURE, CASUAL, and RPG as the favourite genres. Based on this and on the user's activity, the system will provide recommendations. To reset the data for this user, and to restart the demo afresh, please press the reset new user data link thet would have appeared in the login modal when you entered the new user mode.");
+    }
+});
+
+resetNewUser.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // TODO: send refersh new user request.
+    showToast('New User refershed.');
+    location.reload();
 });

@@ -25,7 +25,7 @@ function getMongoQuery(ids, id_col = 'id') {
         a[id_col] = ids[i];
         list.push(a);
     }
-    return (list && { '$or': list }) || { 'skdbgdbg': 'dhgivbedsri' };
+    return (list.length && (list && { '$or': list })) || { 'skdbgdbg': 'dhgivbedsri' };
 }
 
 // Inputs a list of game ids and returns game details of the valid games in an array in arbitrary order.
@@ -544,7 +544,7 @@ app.get('/store', async (req, res) => {
     }
 
     const mostPopularGames = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < Math.min(similarUserBasedGames.length, 6); i++) {
         mostPopularGames.push({
             id: similarUserBasedGames[i].id,
             img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,

@@ -686,7 +686,7 @@ class Recommender:
         scores = [x for x in scores if x not in owned_games]
 
         # Convert internal item ids to system based ids
-        owned_games = list(pd.Series(owned_games).map(lambda x: item_dict[x]))
+        # owned_games = list(pd.Series(owned_games).map(lambda x: item_dict[x]))
         scores = list(pd.Series(scores).map(lambda x: item_dict[x]))
 
         return scores[:k]
