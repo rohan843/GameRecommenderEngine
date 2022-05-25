@@ -120,10 +120,10 @@ newUserEntry.addEventListener('click', (e) => {
     }
 });
 
-resetNewUser.addEventListener('click', (e) => {
+resetNewUser.addEventListener('click', async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    // TODO: send refersh new user request.
-    showToast('New User refershed.');
+    console.log(await postData('http://localhost:4000/new_user_refresh'));
+    showToast('New User refreshed.');
     location.reload();
 });
