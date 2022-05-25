@@ -214,7 +214,7 @@
                                 <img src="assets/images/icon-mouse.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre1.id %>">
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre1.id %>" class="hidden_genre_class">
                                         <%- genre1.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
@@ -227,7 +227,7 @@
                                 <img src="assets/images/icon-gamepad.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre2.id %>">
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre2.id %>" class="hidden_genre_class">
                                         <%- genre2.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
@@ -240,7 +240,7 @@
                                 <img src="assets/images/icon-gamepad-2.png" alt="">
                             </div>
                             <div class="nk-feature-cont">
-                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre3.id %>">
+                                <h3 class="nk-feature-title"><a href="#" genre_id="<%- genre3.id %>" class="hidden_genre_class">
                                         <%- genre3.genre %>
                                     </a></h3>
                                 <h3 class="nk-feature-title text-main-1"><a href="#">View Games</a></h3>
@@ -337,7 +337,7 @@
                                     <ul class="nk-widget-categories">
 
                                         <% for( let i=0; i < genreCategories.length; i++ ) { %>
-                                            <li><a href="#" genre_id="<%- genreCategories[i].genre_id %>">
+                                            <li><a href="#" genre_id="<%- genreCategories[i].genre_id %>" class="hidden_genre_class">
                                                     <%- genreCategories[i].title %>
                                                 </a></li>
                                             <% } %>
