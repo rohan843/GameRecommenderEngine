@@ -193,11 +193,37 @@ const validateUA = (userAction) => {
 const getValidGenreIds = (genre_ids) => {
     const lst = [];
     for (let id of genre_ids) {
-        if (id in Object.keys(genreDict)) {
+        if (id in genreDict) {
             lst.push(id);
         }
     }
     return lst;
+};
+
+const presentGame = async (game_id) => {
+    const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+    if (!client) {
+        return;
+    } else {
+        try {
+            const recommenderDB = client.db('recommenderDB');
+            const recCollection = recommenderDB.collection('allGameData');
+            const query = { id: parseInt(game_id) };
+            if ((await recCollection.countDocuments(query)) >= 1) {
+                return true;
+            }
+            client.close();
+            return false;
+        } catch (e) {
+            console.log(e);
+            client.close();
+            return false;
+        }
+    }
+};
+
+const calcScore = (o, b, r) => {
+    return (o + 3 * b + 2 * r) / 6;
 };
 
 const resolveGenreUserAction = async (userAction) => {
@@ -206,7 +232,6 @@ const resolveGenreUserAction = async (userAction) => {
     if (genre_ids.length === 0) {
         return;
     }
-    console.log(uid, genre_ids);
 
     const client = await MongoClient.connect(url).catch(err => { console.log(err) });
     if (!client) {
@@ -214,25 +239,34 @@ const resolveGenreUserAction = async (userAction) => {
     } else {
         try {
             const sysDB = client.db('sysDB');
-            const collection = sysDB.collection('userGenreBehaviour');
+            const recommenderDB = client.db('recommenderDB');
+            const sysCollection = sysDB.collection('userGenreBehaviour');
+            const recCollection = recommenderDB.collection('allUserData');
             const query = { uid: uid };
-            const res = await collection.findOne(query);
+            const res = await sysCollection.findOne(query);
             const newTotal = res.total + genre_ids.length;
             const oldTotal = res.total;
             res.total = newTotal;
-            for (let id of Object.keys(genreDict)) {
+            for (let id in genreDict) {
+                const numericId = parseInt(id);
                 const curValue = res[genreDict[id]] * oldTotal;
                 let newValue = curValue;
-                if (id in genre_ids) {
+                if (genre_ids.includes(numericId)) {
                     newValue++;
                 }
                 res[genreDict[id]] = newValue / newTotal;
             }
-            console.log(res);
             const newSysValues = { $set: res };
-            await collection.updateOne(query, newSysValues);
+            await sysCollection.updateOne(query, newSysValues);
 
-            
+            const recRes = await recCollection.findOne(query);
+
+            for (let id in genreDict) {
+                recRes[genreDict[id]] = res[genreDict[id]];
+            }
+            const newRecValues = { $set: recRes };
+
+            await recCollection.updateOne(query, newRecValues);
 
             client.close();
         } catch (e) {
@@ -241,12 +275,12 @@ const resolveGenreUserAction = async (userAction) => {
         }
     }
 
-    // const reset = await mutex.runExclusive(async () => {
-    //     return registerUAAndQueryRecommenderReset();
-    // });
-    // if (reset) {
-    //     resetRecommenderData();
-    // }
+    const reset = await mutex.runExclusive(async () => {
+        return registerUAAndQueryRecommenderReset();
+    });
+    if (reset) {
+        resetRecommenderData();
+    }
 };
 const resolveGameUserAction = async (userAction) => {
     if (userAction.sub_type === 'pagevisit') {
@@ -264,10 +298,124 @@ const resolveGameUserAction = async (userAction) => {
     // }
 };
 const resolveGamePageVisit = async (userAction) => {
-    console.log(userAction);
+    const uid = userAction.uid;
+    const game_id = userAction.game_id;
+    const present = (await presentGame(game_id));
+    if (!present) {
+        return;
+    } else {
+        const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+        if (!client) {
+            return;
+        } else {
+            try {
+                const sysDB = client.db('sysDB');
+                const recommenderDB = client.db('recommenderDB');
+                const sysCollection = sysDB.collection('userGameBehaviour');
+                const recCollection = recommenderDB.collection('userGameInteractions');
+                const query = {
+                    uid: uid,
+                    game_id: game_id
+                }
+                let res = await sysCollection.findOne(query);
+                let insert = false;
+                if (!res) {
+                    res = {
+                        uid: uid,
+                        game_id: game_id,
+                        owned: 0,
+                        visits: 1,
+                        rating: 0
+                    };
+                    insert = true;
+                } else {
+                    res.visits++;
+                }
+                const newSysValues = { $set: res };
+                if (!insert) {
+                    await sysCollection.updateOne(query, newSysValues);
+                }
+                else {
+                    await sysCollection.insertOne(res);
+                }
+
+                await recCollection.deleteOne(query);
+
+                let recRes = {
+                    uid: uid,
+                    game_id: game_id,
+                    owned: calcScore(res.visits, res.owned, res.rating)
+                };
+
+                await recCollection.insertOne(recRes);
+
+                client.close();
+            } catch (e) {
+                console.log(e);
+                client.close();
+            }
+        }
+    }
 };
 const resolveGamePurchase = async (userAction) => {
-    console.log(userAction);
+    const uid = userAction.uid;
+    const game_id = userAction.game_id;
+    const present = (await presentGame(game_id));
+    if (!present) {
+        return;
+    } else {
+        const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+        if (!client) {
+            return;
+        } else {
+            try {
+                const sysDB = client.db('sysDB');
+                const recommenderDB = client.db('recommenderDB');
+                const sysCollection = sysDB.collection('userGameBehaviour');
+                const recCollection = recommenderDB.collection('userGameInteractions');
+                const query = {
+                    uid: uid,
+                    game_id: game_id
+                }
+                let res = await sysCollection.findOne(query);
+                let insert = false;
+                if (!res) {
+                    res = {
+                        uid: uid,
+                        game_id: game_id,
+                        owned: 1,
+                        visits: 0,
+                        rating: 0
+                    };
+                    insert = true;
+                } else {
+                    res.owned = 1;
+                }
+                const newSysValues = { $set: res };
+                if (!insert) {
+                    await sysCollection.updateOne(query, newSysValues);
+                }
+                else {
+                    await sysCollection.insertOne(res);
+                }
+
+                await recCollection.deleteOne(query);
+
+                let recRes = {
+                    uid: uid,
+                    game_id: game_id,
+                    owned: calcScore(res.visits, res.owned, res.rating)
+                };
+
+                await recCollection.insertOne(recRes);
+
+                client.close();
+            } catch (e) {
+                console.log(e);
+                client.close();
+            }
+        }
+    }
 };
 const resolveGameRating = async (userAction) => {
     console.log(userAction);
@@ -288,6 +436,7 @@ app.post('/new_user_refresh', (req, res) => {
             await recDB.collection("allUserData").updateOne(query, newRecValues);
             await sysDB.collection("userGenreBehaviour").updateOne(query, newSysValues);
             await sysDB.collection("userGameBehaviour").deleteMany(query);
+            await recDB.collection("userGameInteractions").deleteMany(query);
         } catch (e) {
             console.log(e);
         }
