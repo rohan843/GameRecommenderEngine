@@ -5,6 +5,12 @@ const cookieParser = require('cookie-parser');
 const cookieHandler = require('./Utilities/cookieHandler.js');
 const MongoClient = require('mongodb').MongoClient;
 const axios = require('axios');
+const NodeCache = require("node-cache");
+
+// ---- Caches ----
+const recommenderCache = new NodeCache({ stdTTL: 500, checkperiod: 360 });
+const gameDataCache = new NodeCache({ stdTTL: 300, checkperiod: 360 });
+const gameFeaturesCache = new NodeCache({ stdTTL: 300, checkperiod: 360 });
 
 
 const app = express();
@@ -246,6 +252,18 @@ const minUID = 0;
 const baseURL = 'http://127.0.0.1:5000';
 const getUserGameRecs = async (uid, k) => {
     const url = baseURL + '/user_game_rec';
+    const cacheKeyURL = url + `?uid=${uid}&k=${k}`;
+    try {
+        if (recommenderCache.has(cacheKeyURL)) {
+            const cachedValue = recommenderCache.get(cacheKeyURL);
+            if (cachedValue !== undefined) {
+                return cachedValue;
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
     try {
         let res = await axios.get(url, {
             params: {
@@ -253,6 +271,11 @@ const getUserGameRecs = async (uid, k) => {
                 k: k
             }
         });
+        try {
+            recommenderCache.set(cacheKeyURL, res.data);
+        } catch (e) {
+            console.log(e);
+        }
         return res.data;
     } catch (e) {
         console.log(e);
@@ -260,6 +283,18 @@ const getUserGameRecs = async (uid, k) => {
 };
 const getUserUserRecs = async (uid, k) => {
     const url = baseURL + '/user_user_rec';
+    const cacheKeyURL = url + `?uid=${uid}&k=${k}`;
+    try {
+        if (recommenderCache.has(cacheKeyURL)) {
+            const cachedValue = recommenderCache.get(cacheKeyURL);
+            if (cachedValue !== undefined) {
+                return cachedValue;
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
     try {
         let res = await axios.get(url, {
             params: {
@@ -267,6 +302,11 @@ const getUserUserRecs = async (uid, k) => {
                 k: k
             }
         });
+        try {
+            recommenderCache.set(cacheKeyURL, res.data);
+        } catch (e) {
+            console.log(e);
+        }
         return res.data;
     } catch (e) {
         console.log(e);
@@ -274,6 +314,18 @@ const getUserUserRecs = async (uid, k) => {
 };
 const getGameGameRecs = async (game_id, k) => {
     const url = baseURL + '/game_game_rec';
+    const cacheKeyURL = url + `?game_id=${game_id}&k=${k}`;
+    try {
+        if (recommenderCache.has(cacheKeyURL)) {
+            const cachedValue = recommenderCache.get(cacheKeyURL);
+            if (cachedValue !== undefined) {
+                return cachedValue;
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
     try {
         let res = await axios.get(url, {
             params: {
@@ -281,6 +333,11 @@ const getGameGameRecs = async (game_id, k) => {
                 k: k
             }
         });
+        try {
+            recommenderCache.set(cacheKeyURL, res.data);
+        } catch (e) {
+            console.log(e);
+        }
         return res.data;
     } catch (e) {
         console.log(e);
@@ -289,6 +346,18 @@ const getGameGameRecs = async (game_id, k) => {
 };
 const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
     const url = baseURL + '/genre_game_rec';
+    const cacheKeyURL = url + `?uid=${uid}&k=${k}&merge_by_and=${merge_by_and}&genres=${genres.join(',')}`;
+    try {
+        if (recommenderCache.has(cacheKeyURL)) {
+            const cachedValue = recommenderCache.get(cacheKeyURL);
+            if (cachedValue !== undefined) {
+                return cachedValue;
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
     try {
         let res = await axios.get(url, {
             params: {
@@ -298,6 +367,11 @@ const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
                 merge_by_and: merge_by_and
             }
         });
+        try {
+            recommenderCache.set(cacheKeyURL, res.data);
+        } catch (e) {
+            console.log(e);
+        }
         return res.data;
     } catch (e) {
         console.log(e);
