@@ -2,7 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
-const axios = require('axios')
+const axios = require('axios');
+const Mutex = require('async-mutex').Mutex;
+const Semaphore = require('async-mutex').Semaphore;
+const withTimeout = require('async-mutex').withTimeout;
+
+const mutex = new Mutex();
 
 // ---- DB Related work ----
 const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
@@ -10,6 +15,20 @@ const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
 const app = express();
 app.use(parser.urlencoded({ extended: true }));
 app.use(express.json());
+
+// ---- User Action Count ----
+const maxUACount = 50000;
+let regUserActionCount = 0;
+
+// Returns true if recommender must be reset.
+const registerUAAndQueryRecommenderReset = () => {
+    regUserActionCount = regUserActionCount + 1;
+    if (regUserActionCount === maxUACount) {
+        regUserActionCount = 0;
+        return true;
+    }
+    return false;
+};
 
 
 const newUserData = {
@@ -86,18 +105,28 @@ const resetRecommenderData = (pw = 'qwerty') => {
         }
     }).then(res => {
         console.log(`statusCode: ${res.status}`);
-        console.log(res);
+        console.log(res.data);
     }).catch(error => {
         console.error(error);
     });
 };
 
 // ---- User Action Resolvers ----
-const resolveGenreUserAction = (userAction) => {
-
+const resolveGenreUserAction = async (userAction) => {
+    const reset = await mutex.runExclusive(async () => {
+        return registerUAAndQueryRecommenderReset();
+    });
+    if (reset) {
+        resetRecommenderData();
+    }
 };
-const resolveGameUserAction = (userAction) => {
-
+const resolveGameUserAction = async (userAction) => {
+    const reset = await mutex.runExclusive(async () => {
+        return registerUAAndQueryRecommenderReset();
+    });
+    if (reset) {
+        resetRecommenderData();
+    }
 };
 
 
