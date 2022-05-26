@@ -9,8 +9,8 @@ const NodeCache = require("node-cache");
 
 // ---- Caches ----
 const recommenderCache = new NodeCache({ stdTTL: 500, checkperiod: 360 });
-const gameDataCache = new NodeCache({ stdTTL: 300, checkperiod: 360 });
-const gameFeaturesCache = new NodeCache({ stdTTL: 300, checkperiod: 360 });
+const gameDataCache = new NodeCache({ stdTTL: 3000, checkperiod: 360 });
+const gameFeaturesCache = new NodeCache({ stdTTL: 3000, checkperiod: 360 });
 
 
 const app = express();
@@ -91,9 +91,26 @@ const sortGameData = (game_ids, game_data) => {
 
 // Inputs a list of game ids and returns their feature details.
 const getGameFeatureData = async (game_ids) => {
+
+    const missedIds = [];
+    const cachedValues = [];
+    for(let id of game_ids) {
+        const strId = id.toString();
+        const cachedValue = gameFeaturesCache.get(strId);
+        if (cachedValue != undefined) {
+            cachedValues.push(cachedValue);
+        } else {
+            missedIds.push(id);
+        }
+    }
+    game_ids = missedIds;
+    if (game_ids.length === 0) {
+        return cachedValues;
+    }
+
     const client = await MongoClient.connect(url).catch(err => { console.log(err) });
     if (!client) {
-        return {};
+        return [];
     } else {
         try {
             const db = client.db('recommenderDB');
@@ -101,11 +118,18 @@ const getGameFeatureData = async (game_ids) => {
             const query = getMongoQuery(game_ids);
             const res = await collection.find(query).toArray();
             client.close();
-            return res;
+            try {
+                for (let gameFeatureData of res) {
+                    gameFeaturesCache.set(gameFeatureData.id.toString(), gameFeatureData);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+            return res.concat(cachedValues);
         } catch (e) {
             console.log(e);
             client.close();
-            return {};
+            return [];
         }
     }
 };
@@ -274,11 +298,11 @@ const minUID = 0;
 
 // ---- Recommender API functions ----
 const baseURL = 'http://127.0.0.1:5000';
-const getUserGameRecs = async (uid, k) => {
+const getUserGameRecs = async (uid, k, useCache = true) => {
     const url = baseURL + '/user_game_rec';
     const cacheKeyURL = url + `?uid=${uid}&k=${k}`;
     try {
-        if (recommenderCache.has(cacheKeyURL)) {
+        if (useCache && recommenderCache.has(cacheKeyURL)) {
             const cachedValue = recommenderCache.get(cacheKeyURL);
             if (cachedValue !== undefined) {
                 return cachedValue;
@@ -305,11 +329,11 @@ const getUserGameRecs = async (uid, k) => {
         console.log(e);
     }
 };
-const getUserUserRecs = async (uid, k) => {
+const getUserUserRecs = async (uid, k, useCache = true) => {
     const url = baseURL + '/user_user_rec';
     const cacheKeyURL = url + `?uid=${uid}&k=${k}`;
     try {
-        if (recommenderCache.has(cacheKeyURL)) {
+        if (useCache && recommenderCache.has(cacheKeyURL)) {
             const cachedValue = recommenderCache.get(cacheKeyURL);
             if (cachedValue !== undefined) {
                 return cachedValue;
@@ -336,11 +360,11 @@ const getUserUserRecs = async (uid, k) => {
         console.log(e);
     }
 };
-const getGameGameRecs = async (game_id, k) => {
+const getGameGameRecs = async (game_id, k, useCache = true) => {
     const url = baseURL + '/game_game_rec';
     const cacheKeyURL = url + `?game_id=${game_id}&k=${k}`;
     try {
-        if (recommenderCache.has(cacheKeyURL)) {
+        if (useCache && recommenderCache.has(cacheKeyURL)) {
             const cachedValue = recommenderCache.get(cacheKeyURL);
             if (cachedValue !== undefined) {
                 return cachedValue;
@@ -368,11 +392,11 @@ const getGameGameRecs = async (game_id, k) => {
         return null;
     }
 };
-const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
+const getUserGameGenreRecs = async (uid, k, genres, merge_by_and, useCache = true) => {
     const url = baseURL + '/genre_game_rec';
     const cacheKeyURL = url + `?uid=${uid}&k=${k}&merge_by_and=${merge_by_and}&genres=${genres.join(',')}`;
     try {
-        if (recommenderCache.has(cacheKeyURL)) {
+        if (useCache && recommenderCache.has(cacheKeyURL)) {
             const cachedValue = recommenderCache.get(cacheKeyURL);
             if (cachedValue !== undefined) {
                 return cachedValue;
@@ -806,7 +830,7 @@ app.get('/store-cart', async (req, res) => {
             minUID: minUID,
         });
     } else {
-        const games = await getUserGameRecs(uid, 10);
+        const games = await getUserGameRecs(uid, 10, false);
         const gameList = games.recommendations.owned;
         const gameData = await getGameData(gameList);
         const gameDictList = [];
