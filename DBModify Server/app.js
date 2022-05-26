@@ -190,9 +190,22 @@ const validateUA = (userAction) => {
     return true;
 };
 
+const getValidGenreIds = (genre_ids) => {
+    const lst = [];
+    for (let id of genre_ids) {
+        if (id in Object.keys(genreDict)) {
+            lst.push(id);
+        }
+    }
+    return lst;
+};
+
 const resolveGenreUserAction = async (userAction) => {
     const uid = userAction.uid;
-    const genre_ids = userAction.genre_ids;
+    const genre_ids = getValidGenreIds(userAction.genre_ids);
+    if (genre_ids.length === 0) {
+        return;
+    }
     console.log(uid, genre_ids);
 
     const client = await MongoClient.connect(url).catch(err => { console.log(err) });
@@ -200,12 +213,28 @@ const resolveGenreUserAction = async (userAction) => {
         return;
     } else {
         try {
-            const db = client.db('sysDB');
-            const collection = db.collection('userGenreBehaviour');
+            const sysDB = client.db('sysDB');
+            const collection = sysDB.collection('userGenreBehaviour');
             const query = { uid: uid };
             const res = await collection.findOne(query);
-            client.close();
+            const newTotal = res.total + genre_ids.length;
+            const oldTotal = res.total;
+            res.total = newTotal;
+            for (let id of Object.keys(genreDict)) {
+                const curValue = res[genreDict[id]] * oldTotal;
+                let newValue = curValue;
+                if (id in genre_ids) {
+                    newValue++;
+                }
+                res[genreDict[id]] = newValue / newTotal;
+            }
             console.log(res);
+            const newSysValues = { $set: res };
+            await collection.updateOne(query, newSysValues);
+
+            
+
+            client.close();
         } catch (e) {
             console.log(e);
             client.close();
@@ -270,16 +299,16 @@ app.post('/new_user_refresh', (req, res) => {
 });
 
 app.post('/store_user_actions', (req, res) => {
-    // for (let userAction of req.body) {
-    //     if (!validateUA(userAction)) {
-    //         continue;
-    //     }
-    //     if (userAction.type === 'genre') {
-    //         resolveGenreUserAction(userAction);
-    //     } else if (userAction.type === 'game') {
-    //         resolveGameUserAction(userAction);
-    //     }
-    // }
+    for (let userAction of req.body) {
+        if (!validateUA(userAction)) {
+            continue;
+        }
+        if (userAction.type === 'genre') {
+            resolveGenreUserAction(userAction);
+        } else if (userAction.type === 'game') {
+            resolveGameUserAction(userAction);
+        }
+    }
     res.send({ message: 'User actions updated.' });
 });
 
