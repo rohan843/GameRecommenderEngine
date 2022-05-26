@@ -44,7 +44,7 @@ const resetNewUser = document.getElementById('resetNewUser');
 
 
 uid.value = '';
-const uidCookie = getCookie('uid');
+let uidCookie = getCookie('uid');
 
 if (uidCookie == null || uidCookie == -1) {
     setCookie('uid', -1);
@@ -56,6 +56,7 @@ if (uidCookie == null || uidCookie == -1) {
 } else {
     signinHead.innerHTML = `<span class="text-main-1">User ${uidCookie}</span> Logged In`;
 }
+uidCookie = getCookie('uid');
 
 signinCloseBtn.addEventListener('click', (e) => {
     uid.value = '';

@@ -64,7 +64,21 @@ if (window.location.pathname === '/store-product') {
 }
 
 // ---- Game Purchase ----
-
+const allBuyBtns = document.querySelectorAll('.hidden_buy_class');
+for (let buyBtn of allBuyBtns) {
+    buyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const tar = e.target;
+        const game_id = parseInt(tar.attributes.game_id.value);
+        if (game_id === 0 || game_id) {
+            userActions.push(getUserAction('game', uidCookie, {
+                actionSubType: 'purchase',
+                game_id: game_id
+            }));
+        }
+    });
+}
 
 // ---- Game Rating ----
 if (window.location.pathname === '/store-product') {
