@@ -7,7 +7,7 @@ const getUserAction = (actionType, uid, optns) => {
             uid: parseInt(uid),
             genre_ids: optns.genre_ids
         }
-    } else if(actionType === 'game') {
+    } else if (actionType === 'game') {
         if (optns.actionSubType === 'pagevisit') {
             return {
                 type: 'game',
@@ -54,15 +54,35 @@ if (window.location.pathname === '/search' && regexGenreListCheck.test(params['g
 if (window.location.pathname === '/store-product') {
     setTimeout(() => {
         const game_id = parseInt(params['game_id']);
-        userActions.push(getUserAction('game', uidCookie, {
-            actionSubType: 'pagevisit',
-            game_id: game_id,
-        }));
+        if (game_id === 0 || game_id) {
+            userActions.push(getUserAction('game', uidCookie, {
+                actionSubType: 'pagevisit',
+                game_id: game_id
+            }));
+        }
     }, pageVisitTime);
 }
 
 // ---- Game Purchase ----
+
+
 // ---- Game Rating ----
+if (window.location.pathname === '/store-product') {
+    const reviewForm = document.getElementById('reviewForm');
+    reviewForm.addEventListener('submit', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const game_id = parseInt(params['game_id']);
+        const rating = parseInt(reviewForm['review-rate'].value);
+        if (rating && game_id) {
+            userActions.push(getUserAction('game', uidCookie, {
+                actionSubType: 'rating',
+                game_id: game_id,
+                rating: rating
+            }));
+        }
+    });
+}
 
 if (uidCookie != -1) {
     document.addEventListener(
