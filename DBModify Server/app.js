@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const parser = require('body-parser');
-const json = require('body-parser/lib/types/json');
 const MongoClient = require('mongodb').MongoClient;
 const axios = require('axios')
 
@@ -10,6 +9,7 @@ const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
 
 const app = express();
 app.use(parser.urlencoded({ extended: true }));
+app.use(express.json());
 
 
 const newUserData = {
@@ -92,6 +92,14 @@ const resetRecommenderData = (pw = 'qwerty') => {
     });
 };
 
+// ---- User Action Resolvers ----
+const resolveGenreUserAction = (userAction) => {
+
+};
+const resolveGameUserAction = (userAction) => {
+
+};
+
 
 // ---- API Endpoints ----
 app.post('/new_user_refresh', (req, res) => {
@@ -109,6 +117,18 @@ app.post('/new_user_refresh', (req, res) => {
         });
     });
 
+});
+
+app.post('/store_user_actions', (req, res) => {
+    console.log(req.body);
+    for (let userAction of req.body) {
+        if (userAction.type === 'genre') {
+            resolveGenreUserAction(userAction);
+        } else if (userAction.type === 'game') {
+            resolveGameUserAction(userAction);
+        }
+    }
+    res.send({ message: 'User actions updated.' });
 });
 
 app.listen(4000, () => {

@@ -1,5 +1,4 @@
 async function postData(url = '', data = {}) {
-    // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST',
         cache: 'no-cache',
@@ -10,5 +9,5 @@ async function postData(url = '', data = {}) {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(data)
     });
-    return response
+    return response;
 }

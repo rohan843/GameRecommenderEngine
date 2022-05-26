@@ -365,17 +365,17 @@ app.get('/', async (req, res) => {
     // similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, similarUserBasedGames);
     // profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, profileBasedGameFeatures);
     // similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, similarUserBasedGameFeatures);
-    
+
     const userRecs = [];
     for (let i = 0; i < profileBasedGames.length; i++) {
         const num = getRndInteger(1, 10);
         userRecs.push({
             id: profileBasedGames[i].id,
-            img: `assets/images/post-${num}.jpg`,            
+            img: `assets/images/post-${num}.jpg`,
             sqImg: `assets/images/post-${num}-sm.jpg`,
             title: profileBasedGames[i].name,
             price: profileBasedGameFeatures[i].price,
-            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
             genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
             rating: profileBasedGameFeatures[i].rating
         });
@@ -434,28 +434,7 @@ app.get('/store-product', async (req, res) => {
     }
     if (game_id !== 0 && !game_id) {
         res.render('store-product', {
-            genreCategories: [
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                },
-                {
-                    name: 'Action',
-                    genre_id: 1
-                }
-            ],
+            genreCategories: allGenres.slice(0, 7),
             otherUserLikes: otherUserLikes,
             relatedProducts: [],
             mainProductDesc: {
@@ -640,7 +619,7 @@ app.get('/store-catalog', async (req, res) => {
             img: `assets/images/product-${num}-xs.jpg`,
             title: profileBasedGames[i].name,
             price: profileBasedGameFeatures[i].price,
-            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
             genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
             rating: profileBasedGameFeatures[i].rating
         });
@@ -706,7 +685,7 @@ app.get('/search', async (req, res) => {
             img: `assets/images/product-${num}-xs.jpg`,
             title: genreBasedGames[i].name,
             price: genreBasedGameFeatures[i].price,
-            desc: genreBasedGames[i].desc_snippet || 'No description available at the moment.',            
+            desc: genreBasedGames[i].desc_snippet || 'No description available at the moment.',
             genre: (genreBasedGames[i].genre && genreBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
             rating: genreBasedGameFeatures[i].rating
         });
@@ -794,6 +773,16 @@ app.get('*', async (req, res) => {
         maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
+});
+
+app.post('/activity-monitor', (req, res) => {
+    try {
+        let parsedData = JSON.parse(req.headers.body);
+        axios.post('http://localhost:4000/store_user_actions', parsedData);
+        res.send('Success');
+    } catch (e) {
+        res.send('Failure');        
+    }
 });
 
 // ---- Server Setup ----
