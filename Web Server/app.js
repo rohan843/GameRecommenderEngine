@@ -36,6 +36,23 @@ function getMongoQuery(ids, id_col = 'id') {
 
 // Inputs a list of game ids and returns game details of the valid games in an array in arbitrary order.
 const getGameData = async (game_ids) => {
+
+    const missedIds = [];
+    const cachedValues = [];
+    for(let id of game_ids) {
+        const strId = id.toString();
+        const cachedValue = gameDataCache.get(strId);
+        if (cachedValue != undefined) {
+            cachedValues.push(cachedValue);
+        } else {
+            missedIds.push(id);
+        }
+    }
+    game_ids = missedIds;
+    if (game_ids.length === 0) {
+        return cachedValues;
+    }
+
     const client = await MongoClient.connect(url).catch(err => { console.log(err) });
     if (!client) {
         return [];
@@ -46,7 +63,14 @@ const getGameData = async (game_ids) => {
             const query = getMongoQuery(game_ids);
             const res = await collection.find(query).toArray();
             client.close();
-            return res;
+            try {
+                for (let gameData of res) {
+                    gameDataCache.set(gameData.id.toString(), gameData);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+            return res.concat(cachedValues);
         } catch (e) {
             console.log(e);
             client.close();
