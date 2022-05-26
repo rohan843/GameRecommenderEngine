@@ -444,13 +444,13 @@ const resolveGameRating = async (userAction) => {
                     res = {
                         uid: uid,
                         game_id: game_id,
-                        owned: 1,
+                        owned: 0,
                         visits: 0,
-                        rating: 0
+                        rating: rating
                     };
                     insert = true;
                 } else {
-                    res.owned = 1;
+                    res.rating = rating;
                 }
                 const newSysValues = { $set: res };
                 if (!insert) {
