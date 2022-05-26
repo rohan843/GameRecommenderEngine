@@ -77,6 +77,7 @@ for (let buyBtn of allBuyBtns) {
                 game_id: game_id
             }));
         }
+        showToast('Bought!');
     });
 }
 
@@ -95,6 +96,7 @@ if (window.location.pathname === '/store-product') {
                 rating: rating
             }));
         }
+        showToast('Review Taken!');
     });
 }
 
