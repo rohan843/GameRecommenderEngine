@@ -27,7 +27,7 @@ app.use(parser.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ---- User Action Count ----
-const maxUACount = 5;
+const maxUACount = 20;
 let regUserActionCount = 0;
 
 // Returns true if recommender must be reset.
