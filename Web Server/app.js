@@ -244,19 +244,6 @@ const minUID = 0;
 
 // ---- Recommender API functions ----
 const baseURL = 'http://127.0.0.1:5000';
-const resetRecommenderData = (pw = 'qwerty') => {
-    const url = baseURL + '/refresh_model_data';
-    axios.post(url, {}, {
-        headers: {
-            pw: pw
-        }
-    }).then(res => {
-        console.log(`statusCode: ${res.status}`);
-        console.log(res);
-    }).catch(error => {
-        console.error(error);
-    });
-};
 const getUserGameRecs = async (uid, k) => {
     const url = baseURL + '/user_game_rec';
     try {
@@ -297,6 +284,7 @@ const getGameGameRecs = async (game_id, k) => {
         return res.data;
     } catch (e) {
         console.log(e);
+        return null;
     }
 };
 const getUserGameGenreRecs = async (uid, k, genres, merge_by_and) => {
@@ -454,7 +442,12 @@ app.get('/store-product', async (req, res) => {
             minUID: minUID,
         });
     } else {
-        const relatedRecs = (await getGameGameRecs(game_id, 4)).recommendations;
+        const gameGameRecs = await getGameGameRecs(game_id, 4);
+        if (!gameGameRecs) {
+            res.redirect('/404');
+            return;
+        }
+        const relatedRecs = (gameGameRecs).recommendations;
         const relatedGameData = sortGameData(relatedRecs, await getGameData(relatedRecs));
         const relatedGameFeatureData = sortGameData(relatedRecs, await getGameFeatureData(relatedRecs));
         const relatedProducts = [];
@@ -768,11 +761,15 @@ app.get('/community-stats', async (req, res) => {
 });
 
 //The 404 Route
-app.get('*', async (req, res) => {
+app.get('/404', async (req, res) => {
     res.status(404).render('404', {
         maxUID: (await numUsers()) - 2,
         minUID: minUID,
     });
+});
+
+app.get('*', async (req, res) => {
+    res.redirect('/404');
 });
 
 app.post('/activity-monitor', (req, res) => {
@@ -781,7 +778,7 @@ app.post('/activity-monitor', (req, res) => {
         axios.post('http://localhost:4000/store_user_actions', parsedData);
         res.send('Success');
     } catch (e) {
-        res.send('Failure');        
+        res.send('Failure');
     }
 });
 

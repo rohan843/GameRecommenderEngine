@@ -418,7 +418,65 @@ const resolveGamePurchase = async (userAction) => {
     }
 };
 const resolveGameRating = async (userAction) => {
-    console.log(userAction);
+    const uid = userAction.uid;
+    const game_id = userAction.game_id;
+    const rating = userAction.rating;
+    const present = (await presentGame(game_id));
+    if (!present) {
+        return;
+    } else {
+        const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+        if (!client) {
+            return;
+        } else {
+            try {
+                const sysDB = client.db('sysDB');
+                const recommenderDB = client.db('recommenderDB');
+                const sysCollection = sysDB.collection('userGameBehaviour');
+                const recCollection = recommenderDB.collection('userGameInteractions');
+                const query = {
+                    uid: uid,
+                    game_id: game_id
+                }
+                let res = await sysCollection.findOne(query);
+                let insert = false;
+                if (!res) {
+                    res = {
+                        uid: uid,
+                        game_id: game_id,
+                        owned: 1,
+                        visits: 0,
+                        rating: 0
+                    };
+                    insert = true;
+                } else {
+                    res.owned = 1;
+                }
+                const newSysValues = { $set: res };
+                if (!insert) {
+                    await sysCollection.updateOne(query, newSysValues);
+                }
+                else {
+                    await sysCollection.insertOne(res);
+                }
+
+                await recCollection.deleteOne(query);
+
+                let recRes = {
+                    uid: uid,
+                    game_id: game_id,
+                    owned: calcScore(res.visits, res.owned, res.rating)
+                };
+
+                await recCollection.insertOne(recRes);
+
+                client.close();
+            } catch (e) {
+                console.log(e);
+                client.close();
+            }
+        }
+    }
 };
 
 
