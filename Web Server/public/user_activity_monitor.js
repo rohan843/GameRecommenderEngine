@@ -54,7 +54,7 @@ if (window.location.pathname === '/search' && regexGenreListCheck.test(params['g
 if (window.location.pathname === '/store-product') {
     setTimeout(() => {
         const game_id = parseInt(params['game_id']);
-        if (game_id === 0 || game_id) {
+        if ((game_id === 0 || game_id) && (game_id >= 0)) {
             userActions.push(getUserAction('game', uidCookie, {
                 actionSubType: 'pagevisit',
                 game_id: game_id
@@ -71,7 +71,7 @@ for (let buyBtn of allBuyBtns) {
         e.preventDefault();
         const tar = e.target;
         const game_id = parseInt(tar.attributes.game_id.value);
-        if (game_id === 0 || game_id) {
+        if ((game_id === 0 || game_id) && (game_id >= 0)) {
             userActions.push(getUserAction('game', uidCookie, {
                 actionSubType: 'purchase',
                 game_id: game_id
@@ -88,7 +88,7 @@ if (window.location.pathname === '/store-product') {
         e.preventDefault();
         const game_id = parseInt(params['game_id']);
         const rating = parseInt(reviewForm['review-rate'].value);
-        if (rating && game_id) {
+        if (rating && (game_id === 0 || game_id) && (game_id >= 0)) {
             userActions.push(getUserAction('game', uidCookie, {
                 actionSubType: 'rating',
                 game_id: game_id,

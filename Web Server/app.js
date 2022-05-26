@@ -426,7 +426,7 @@ app.get('/store-product', async (req, res) => {
             otherUserLikes: otherUserLikes,
             relatedProducts: [],
             mainProductDesc: {
-                id: -1,
+                id: null,
                 name: 'No Game Found',
                 platformSpecs: 'N/A',
                 price: 'N/A',

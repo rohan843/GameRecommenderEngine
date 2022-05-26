@@ -27,11 +27,12 @@ app.use(parser.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ---- User Action Count ----
-const maxUACount = 500000000;
+const maxUACount = 5;
 let regUserActionCount = 0;
 
 // Returns true if recommender must be reset.
 const registerUAAndQueryRecommenderReset = () => {
+    console.log('UserActionCount =', regUserActionCount);
     regUserActionCount = regUserActionCount + 1;
     if (regUserActionCount === maxUACount) {
         regUserActionCount = 0;
@@ -186,8 +187,60 @@ const resetRecommenderData = (pw = 'qwerty') => {
 };
 
 // ---- User Action Resolvers ----
+// Type validation and content validation of UserAction objects
 const validateUA = (userAction) => {
-    return true;
+    if (userAction.type === 'genre') {
+        if (('uid' in userAction) && ('genre_ids' in userAction)) {
+            if ((typeof userAction.uid === typeof 1)) {
+                for (let id of userAction.genre_ids) {
+                    if (typeof id !== typeof 1) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } else if (userAction.type === 'game') {
+        if (userAction.sub_type === 'pagevisit') {
+            if (('uid' in userAction) && ('game_id' in userAction)) {
+                if ((typeof userAction.uid === typeof 1) && (typeof userAction.game_id === typeof 1)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (userAction.sub_type === 'purchase') {
+            if (('uid' in userAction) && ('game_id' in userAction)) {
+                if ((typeof userAction.uid === typeof 1) && (typeof userAction.game_id === typeof 1)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (userAction.sub_type === 'rating') {
+            if (('uid' in userAction) && ('game_id' in userAction) && ('rating' in userAction)) {
+                if ((typeof userAction.uid === typeof 1) && (typeof userAction.game_id === typeof 1) && (typeof userAction.rating === typeof 1)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 };
 
 const getValidGenreIds = (genre_ids) => {
@@ -290,12 +343,12 @@ const resolveGameUserAction = async (userAction) => {
     } else if (userAction.sub_type === 'rating') {
         resolveGameRating(userAction);
     }
-    // const reset = await mutex.runExclusive(async () => {
-    //     return registerUAAndQueryRecommenderReset();
-    // });
-    // if (reset) {
-    //     resetRecommenderData();
-    // }
+    const reset = await mutex.runExclusive(async () => {
+        return registerUAAndQueryRecommenderReset();
+    });
+    if (reset) {
+        resetRecommenderData();
+    }
 };
 const resolveGamePageVisit = async (userAction) => {
     const uid = userAction.uid;
@@ -514,7 +567,7 @@ app.post('/store_user_actions', (req, res) => {
             resolveGenreUserAction(userAction);
         } else if (userAction.type === 'game') {
             resolveGameUserAction(userAction);
-        }
+        }        
     }
     res.send({ message: 'User actions updated.' });
 });
