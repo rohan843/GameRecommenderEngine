@@ -124,7 +124,7 @@ newUserEntry.addEventListener('click', (e) => {
 resetNewUser.addEventListener('click', async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log(await postData('http://localhost:4000/new_user_refresh'));
+    postData('http://localhost:4000/new_user_refresh');
     showToast('New User refreshed.');
     location.reload();
 });
