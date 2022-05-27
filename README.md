@@ -81,7 +81,7 @@ The navbar has the following structure:
 On hovering over any of the tabs that have the '+' sign next to them, a menu opens that leads to more pages:
 ![nav bar drop down](Docs/website_6.jpeg)
 
-The following sections detail the features of the individual pages. 
+The following sections detail the features of the individual pages. Note that wherever multiple games are recommended, the **most relevant game is displayed first, or displayed in an emplasized section**.
 
 ### Home Page
 
@@ -143,8 +143,24 @@ Signin Button:
 Signin Modal:
 ![signin modal](Docs/website_9.jpeg)
 
-
 ### Genre Based Search
+
+There are 2 ways to perform a search based on genre:
+
+1. Choosing a ganre from the Category Menus
+2. Choosing 1 or more genres from the search modal.
+
+Use the following button to open the search modal:
+
+![search button](Docs/website_10.jpeg)
+
+The search modal looks like this:
+
+![search modal](Docs/website_11.jpeg)
+
+In the search modal, from the list, multiple genres can be selected using the `CTRL` key. The check box, if checked, causes the selected genres to be merged by OR, i.e., those games will be found that have at least one of the selected genres. In case it is unchecked, the genres will be merged by AND, i.e., those games that have all of the selected genres will be found. This type of merger may occasionally lead to no game being found, if no game satisfies the condition.
+
+Once the search for a genre is done, either by the search modal, or by the Category Menu, the search results appear on a page similar to the catalog page, with one difference, that the recommendations are only of the games that satisfy the search criteria.
 
 ## Recommender API Server Documentation
 
