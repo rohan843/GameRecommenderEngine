@@ -166,6 +166,25 @@ Once the search for a genre is done, either by the search modal, or by the Categ
 
 ### Server Specific Documentation
 
+The recommender API is implemented as a server. It is a microservice, that provides recommendations for different types of queries. It provides 4 GET endpoints and 1 POST endpoint, as detailed below:
+
+1. **/user_game_rec**: It provides game recommendations for a user. It needs 2 URL parameters:
+    1. `uid`: \[REQUIRED\] The id of the user for whom the recommendations are needed.
+    2. `k`: \[OPTIONAL\] The maximum number of recommendations to provide.
+The returned value is a JSON string, with the following format:
+`
+{
+    'message': The message in the response.
+    'recommendations': {
+        'profile_based': list of game recommendations for the user on the basis of user profile
+            (content - based recommendations). Most relevant games come first.,
+        'similar_user_based': list of game recommendations for the user on the basis of choices of similar users
+            (collaborative filtering based recommendations). Most relevant games come first.,
+        'owned': list of games that the user owns.
+    }
+}
+`
+
 ### Recommender Module
 
 ## DBModify Server Documetation
