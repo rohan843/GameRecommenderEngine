@@ -69,11 +69,23 @@ When the website is opened for the first time, you will be logged out. You may c
 4. To clear any residual data from any previous demonstration of the new user, open the login modal as before (point 1), and press the 'Reset new user data' option that would have appeared. This will reload the website. In the background, the new user data in the database and the recommender will be refreshed.
 ![new user reset](Docs/website_4.jpeg)
 
-> Congrats! You are now logged in as a new user.
+> Congratulations! You are now logged in as a new user.
 
+> To login as any other user, in the login modal, enter the user id of that user. Currently, the user ids go from 0 through 49.
 
+To navigate between pages, the links on the navbar can be used.
+
+The navbar has the following structure:
+![nav bar](Docs/website_5.jpeg)
+
+On hovering over any of the tabs that have the '+' sign next to them, a menu opens that leads to more pages:
+![nav bar drop down](Docs/website_6.jpeg)
+
+The following sections detail the features of the individual pages. 
 
 ### Home Page
+
+
 
 ### Community Stats Page
 
