@@ -249,6 +249,8 @@ The recommender module is an object. It provides various public methods, corresp
 
 ## DBModify Server Documetation
 
+This server performs the following 2 tasks. They are focussed around updation of the DB, and recommender refreshing.
+
 ### New User Refresh
 
 Whenever the 'Reset new user data' option is clicked, the data for the new user, i.e., the user with the user id -2 is reset to its original state. Also, a refresh request id made to the recommender to cause the refreshing of its information, to reflect the latest database state. With each new user reset, the recommender is refreshed (as it is assumed that immediate rollback to the initial state is required). This is a demo based operation, and should not be done multiple times, as it will lead to multiple recommender refreshes, with some refreshes being redundant.
