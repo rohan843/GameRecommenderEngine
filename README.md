@@ -23,7 +23,26 @@ The Recommender server is the server that analyses the behaviour of users, and b
 
 ### Database Overview
 
+The database cluster consists of **2 NoSQL Databases**:
+
+1. recommenderDb: It contains the data primarily used by the recommender. It has the following 4 collections:
+
+    1. allGameData: Info about games.
+    2. allUserData: Info about users.
+    3. gameFeatures: Game Profiles.
+    4. userGameInteractions: Info about interaction between users and games, with an implicit rating per interaction.
+2. sysDB: It contains the data required for the system to work, but not used for recommender predictions. Its collections are:
+
+    1. featuredGames: The ids of 4 games chosen manually to be 'Editor's Choice' games.
+    2. genres: The list of genres in the system, along with their ids.
+    3. mergeByAndCodes: The numbers that denote a genre search merger by AND (see the section on Genre Based Search below).
+    4. modelRefreshPasswords: The valid passwords that can be used to cause the recommendet to be refreshed.
+    5. userGameBehaviour: The information that is received by monitoring how users interact with games.
+    6. userGenreBehaviour: The information that is received by monitoring how users interact with genres.
+
 ### Frontend Overview
+
+The frontend, i.e., the website serves as a way to display information about games, and also as a method to monitor how the user interacts with games and genres, to fine tune the recommendations.
 
 ## Demo Specific Featues
 
