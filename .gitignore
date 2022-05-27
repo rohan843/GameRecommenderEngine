@@ -41,19 +41,19 @@
 # *.ipr
 
 # CMake
-cmake-build-*/
+# cmake-build-*/
 
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 
 # File-based project format
-*.iws
+# *.iws
 
 # IntelliJ
-out/
+# out/
 
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+# .idea_modules/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
@@ -65,10 +65,10 @@ atlassian-ide-plugin.xml
 .idea/sonarlint/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+# com_crashlytics_export_strings.xml
+# crashlytics.properties
+# crashlytics-build.properties
+# fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
