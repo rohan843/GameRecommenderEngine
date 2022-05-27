@@ -122,6 +122,17 @@ This page has the following functional components:
 
 This page displays the games owned by a user. Games are added to this page when a user presses the 'Buy' button. As it may take some time for the corresponding UserAction to be processed, the 'Update List' button is provided to reload the page. Buying an owned game doesn't affect anything.
 
+### Game Page
+
+On pressing the title or image of any game, the corresponding page for that game opens. This page has the following functional components:
+1. **Game Description**: The description of the game for which the page was opened.
+2. **Reviews Tab**: In this tab, the users can give their review ratings. These ratings are internally used to learn user preferences, as detailed later.
+![reviews tab](Docs/website_7.jpeg)
+
+3. **Category Menu**: This menu lists some genres. The user can search for relevant games having any of these genres. More on this is covered in the section 'Genre Based Search'.
+4. **Other Users Also Liked**: These are the games that users similar to the current user liked.
+5. **Related Products**: The games similar to the currently viewed game.
+
 ### Signins
 
 ### Genre Based Search
