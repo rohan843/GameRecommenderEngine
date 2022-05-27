@@ -255,6 +255,11 @@ Whenever the 'Reset new user data' option is clicked, the data for the new user,
 
 ### User Monitoring and UserActions
 
+User monitoring is implemented in 2 parts:
+
+1. On the frontend, a script monitors 4 types of user interactions: visiting the search page of some genres, visiting the information page of a game, rating a game, and buying a game. For each of these interactions, a corresponding UserAction object is created. This object contains the necessary information to identify its type, and to allow the changes to be reflected in the database. Multiple UserAction objects are placed in an array on the frontend. When the `visibilitychange` event is triggered, this array is sent in a POST request to the Web Server. The Web Server validates the format of the received data (it must be valid JSON), and passes it on in a post request to the DBModify server.
+2. The DBModify server receives the user actions, and, according to the type of the user action, processes the UserAction object in the corresponding manner. In this process, it updates the database also. When the number of received UserActions exceeds a predefined amount, a refresh request is made to the recommender, and it is refreshed.
+
 ## Web Server Documentation
 
 ### Database Related Functions
