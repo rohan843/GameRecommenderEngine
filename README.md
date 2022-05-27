@@ -58,6 +58,15 @@ To allow ease of demonstration of the recommender engine, the following things h
 
 ### Quick Start
 
+When the website is opened for the first time, you will be logged out. You may choose to browse the website like this, or, you may login as a user. For now, let's login as the *New User*:
+
+1. Press the login button to open the login modal.
+![login button](Docs/website_1.jpeg)
+2. Press the option that says 'Enter new user demo mode'.
+![login modal](Docs/website_2.jpeg)
+3. The following alert will appear. It details the information that the new user was asked to submit while signing up.
+![new user alert](Docs/website_2.jpeg)
+
 ### Home Page
 
 ### Community Stats Page
