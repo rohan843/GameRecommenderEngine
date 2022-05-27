@@ -135,6 +135,15 @@ On pressing the title or image of any game, the corresponding page for that game
 
 ### Signins
 
+As described in the Quickstart, the signin button on the top right of the page opens the login modal. From here, we can login/logout, enter the new user demo mode, and reset the new user's data.
+
+Signin Button:
+![signin button](Docs/website_8.jpeg)
+
+Signin Modal:
+![signin modal](Docs/website_9.jpeg)
+
+
 ### Genre Based Search
 
 ## Recommender API Server Documentation
