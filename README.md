@@ -19,7 +19,7 @@ The DB Modifier is responsible for 2 tasks:
 1. Resolving UserActions to reflect changes in the database.
 2. Causing the recommender to be updated to reflect the latest state of the DB, from time to time. 
 
-The Recommender server is the server that analyses the behaviour of users, and based on the user profile, game profiles, and user - game interactions, provides recommendations. It provides an API based interface for this. The interface, and the internal workings of the recommender are described below.
+The Recommender server is the server that analyses the behaviour of users, and based on the user profile, game profiles, and user - game interactions, provides recommendations. It provides an API based interface for this. The interface, and the internal workings of the recommender are described later.
 
 ### Database Overview
 
