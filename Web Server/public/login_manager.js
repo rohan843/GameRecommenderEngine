@@ -47,7 +47,7 @@ uid.value = '';
 let uidCookie = getCookie('uid');
 let intUid = parseInt(uidCookie);
 
-if (uidCookie == null || uidCookie == -1 || intUid > maxUID || intUid < minUID) {
+if ((uidCookie != -2) && (uidCookie == null || uidCookie == -1 || intUid >= maxUID || intUid < minUID)) {
     setCookie('uid', -1);
     showToast('Please login to view personalized recommendations.', 3000);
 } else if (uidCookie == -2) {
