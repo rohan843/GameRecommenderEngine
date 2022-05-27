@@ -25,7 +25,7 @@ The Recommender server is the server that analyses the behaviour of users, and b
 
 The database cluster consists of **2 NoSQL Databases**:
 
-1. recommenderDb: It contains the data primarily used by the recommender. It has the following 4 collections:
+1. recommenderDB: It contains the data primarily used by the recommender. It has the following 4 collections:
 
     1. allGameData: Info about games.
     2. allUserData: Info about users.
