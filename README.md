@@ -4,6 +4,17 @@ This project has been created to demonstrate the use and applications of game re
 
 ## System Overview
 
+### System Architecture Overview
+
+The following diagram illustrates how the various components of the system are interlinked:
+![system architecture](Docs/OverallArch.jpg)
+
+The Web Server serves the 
+
+### Database Overview
+
+### Frontend Overview
+
 ## Demo Specific Featues
 
 ## Website Navigation
