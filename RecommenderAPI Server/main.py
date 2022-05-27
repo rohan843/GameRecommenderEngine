@@ -30,8 +30,7 @@ syntax:
 
 {
     'message': The message in the response.
-    ['recommendations': A list of recommendations. The id of the most recommended user/item comes first. This parameter
-    is only included if there was no error.]
+    'recommendations': A list of recommendations. The id of the most recommended user/item comes first.
 }
 
 In the case of game recommendations for users, the response is of the following form:
