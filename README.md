@@ -85,17 +85,42 @@ The following sections detail the features of the individual pages.
 
 ### Home Page
 
-
+The home page has the following functional components:
+1. **Favourite Genres**: 3 genres displayed at the top, which are the top 3 genres the user likes.
+2. **Your Recommendations**: The games that are most suited to the user's profile (i.e., the user's genre preferences).
+3. **Editor's Choices**: 4 games hand picked by the editors, common to all users.
+4. **Other Users Also Liked**: These are the games that users similar to the current user liked.
 
 ### Community Stats Page
 
+This page gives the number of games and the number of users in the database. The number of users includes the *null user* (user id = -1) and the *new user* (user id = -2).
+
 ### Similar User Page
+
+This page gives the id's of the users who are similar to the current user. This is done for all users, including the case when the user is signed out. This is because the user id of a signed out user is -1, and corresponding to the profile of user id -1, recommendations can still be found. This page is mainly intended as a page to suggest friends to the user for jointly playing the games, or, to interact.
+
+Note that clicking the user ids of the suggested users has no effect. The user ids are recommended based on the current user's profile.
 
 ### Store Page
 
+This page has the following functional components:
+1. **Favourite Genres**: 3 genres displayed at the top, which are the top 3 genres the user likes.
+2. **6 Games at the top**: These are the top 6 games that the user would like.
+3. **Top 10 Recommendations**: These are 10 recommended games the user would like, based on her profile.
+4. **Featured Games**: Just like the home screen, these 4 games are the 4 hand picked games, chosen by the editors. They are common to all the users.
+5. **Most Popular**: These are the games that are recommended to the user, based on the preferences of the users similar to the current user.
+
 ### Catalog Page
 
+This page has the following functional components:
+1. **Favourite Genres**: 3 genres displayed at the top, which are the top 3 genres the user likes.
+2. **Recommendations**: These are the games that are recommended to the current user, based on the user's profile.
+3. **Category Menu**: This menu lists some genres. The user can search for relevant games having any of these genres. More on this is covered in the section 'Genre Based Search'.
+4. **Other Users Also Liked**: These are the games that users similar to the current user liked.
+
 ### Owned Games Page
+
+This page displays the games owned by a user. Games are added to this page when a user presses the 'Buy' button. As it may take some time for the corresponding UserAction to be processed, the 'Update List' button is provided to reload the page. Buying an owned game doesn't affect anything.
 
 ### Signins
 
