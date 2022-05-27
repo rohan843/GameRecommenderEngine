@@ -2,15 +2,52 @@
 
 This project has been created to demonstrate the use and applications of game recommender systems, and the algorithms that go into creating them.
 
-## Thought Process
+## System Overview
 
-1. **Collaborative Filtering**: Only looks at ratings, not at things like user age and genre, may cause trouble or wrong predictions.
-2. **Content Based Filtering**: 
+## Demo Specific Featues
 
-## Useful Links
+## Website Navigation
 
-[What Questions to Ask](https://realpython.com/build-recommendation-engine-collaborative-filtering/#:~:text=How%20do%20you,ratings%20you%20calculate%3F)
+### Quick Start
 
-[Reference](https://towardsdatascience.com/building-a-game-recommendation-engine-870a1ccd11c4)
+### Home Page
 
-[Dataset](https://www.kaggle.com/datasets/tamber/steam-video-games)
+### Community Stats Page
+
+### Similar User Page
+
+### Store Page
+
+### Catalog Page
+
+### Owned Games Page
+
+### Signins
+
+### Genre Based Search
+
+## Recommender API Server Documentation
+
+### Server Specific Documentation
+
+### Recommender Module
+
+## DBModify Server Documetation
+
+### New User Refresh
+
+### User Monitoring and UserActions
+
+## Web Server Documentation
+
+### Database Related Functions
+
+### Recommender Related Functions
+
+### Server Routes
+
+### Caching
+
+#### Recommender Cache
+
+#### Database Caches
