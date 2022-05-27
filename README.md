@@ -175,13 +175,12 @@ The recommender API is implemented as a server. It is a microservice, that provi
 The returned value is a JSON string, with the following format:
 
 ```json
-{
-    
-    'message': The message in the response.
-    'recommendations': {
-        'profile_based': list of game recommendations for the user on the basis of user profile (content - based recommendations). Most relevant games come first.,
-        'similar_user_based': list of game recommendations for the user on the basis of choices of similar users (collaborative filtering based recommendations). Most relevant games come first.,
-        'owned': list of games that the user owns.
+{    
+    "message": "The message in the response."
+    "recommendations": {
+        "profile_based": "list of game recommendations for the user on the basis of user profile (content - based recommendations). Most relevant games come first.",
+        "similar_user_based": "list of game recommendations for the user on the basis of choices of similar users (collaborative filtering based recommendations). Most relevant games come first.",
+        "owned": "list of games that the user owns."
     }
 }
 ```
