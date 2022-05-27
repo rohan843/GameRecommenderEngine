@@ -18,12 +18,6 @@ game_meta_data = GameMetaData()
 user_game_meta_data = UserGameMetaData()
 
 
-# [DONE] TODO5: Add functionality to allow refreshing of Recommender data.
-# TODO 6: Add .env method.
-# TODO 7: Modify user game recommendation methods to ensure that the games user owns are not recommended. Check for the
-#   owned games from the database.
-
-
 class Recommender:
     """
     Provides recommendations for various types of queries.
