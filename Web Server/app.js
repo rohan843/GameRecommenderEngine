@@ -434,7 +434,7 @@ const getUserGameGenreRecs = async (uid, k, genres, merge_by_and, useCache = tru
 app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
