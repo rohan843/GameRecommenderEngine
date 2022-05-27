@@ -418,7 +418,7 @@ const getUserGameGenreRecs = async (uid, k, genres, merge_by_and, useCache = tru
             }
         });
         try {
-            recommenderCache.set(cacheKeyURL, res.data);
+            recommenderCache.set(cacheKeyURL, res.data, 1200);
         } catch (e) {
             console.log(e);
         }
