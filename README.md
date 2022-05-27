@@ -279,16 +279,34 @@ Preference for game g = (number of visits to g's game page + 3 * (ownership stat
 
 ## Web Server Documentation
 
-The Web Server is the main server that 
+The Web Server is the main server that loads the web pages. GET requests to the web server cause different pages to load. Its functionalities are described below.
 
-### Database Related Functions
+### Database Related Work
 
-### Recommender Related Functions
+Multiple functions exist that allow for obtaining different types of data from the database. These data include game details, user details, and database metrics (i.e., number of games and number of users). These functions also include caching of data. This mechanism is described later.
+
+### Recommender Related Work
+
+4 functions each corresponding to one of the recommender API server's GET endpoints are present. These functions allow for obtaining recommendations, and provide an easy to use interface to interact with the recommender API server. These functions also include caching of data. This mechanism is described later.
 
 ### Server Routes
 
+Multiple GET routes exist on the server, each corresponding to one of the many web pages of the website.
+
+One POST route also exists. This is the endpoint to which the script monitoring the user actions on the frontend sends the UserAction objects (they are forwarded to the DBModify server, as described previously).
+
 ### Caching
+
+Caching is implemented on the Web Server. There are 3 caches, 2 for DB related caching, and 1 for caching recommender API results.
 
 #### Recommender Cache
 
+It is a cache that stores the recommendation results that are received from the recommender server. The results are stored for a fixed amount of time, and then are discarded.
+
+This cache is used in the 4 recommender related functions. When a cache hit corresponding to the current data requirement occurs, the data from the cache is used. On a cache miss, data is fetched from the recommender.
+
 #### Database Caches
+
+There are 2 database caches. One cache is for game details, and the other is for game feature details (i.e., numeric data associated with any game, and its game profile).
+
+These caches are used in the corresponding database quering functions. On a cache hit, data from cache is used, else, data is fetched from server.
