@@ -168,7 +168,7 @@ Once the search for a genre is done, either by the search modal, or by the Categ
 
 The recommender API is implemented as a server. It is a microservice, that provides recommendations for different types of queries. It provides 4 GET endpoints and 1 POST endpoint, as detailed below:
 
-1. **/user_game_rec**: It provides game recommendations for a user. It needs 2 URL parameters:
+1. GET **/user_game_rec**: It provides game recommendations for a user. It needs 2 URL parameters:
     1. `uid`: \[REQUIRED\] The id of the user for whom the recommendations are needed.
     2. `k`: \[OPTIONAL\] The maximum number of recommendations to provide.
 
@@ -176,12 +176,64 @@ The returned value is a JSON string, with the following format:
 
 ```json
 {    
-    "message": "The message in the response."
+    "message": "The message in the response.",
     "recommendations": {
         "profile_based": "list of game recommendations for the user on the basis of user profile (content - based recommendations). Most relevant games come first.",
         "similar_user_based": "list of game recommendations for the user on the basis of choices of similar users (collaborative filtering based recommendations). Most relevant games come first.",
         "owned": "list of games that the user owns."
     }
+}
+```
+
+2. GET **/user_user_rec**: Get users similar to a given user. The URL parameters are:
+    1. `uid`: \[REQUIRED\] The id of the user for whom the recommendations are needed.
+    2. `k`: \[OPTIONAL\] The maximum number of recommendations to provide.
+
+The returned value is a JSON string, with the following format:
+
+```json
+{
+    "message": "The message in the response.",
+    "recommendations": "A list of recommendations. The id of the most recommended user/item comes first."
+}
+```
+
+3. GET **/game_game_rec**: Get games similar to a given game. The URL parameters are:
+    1. `game_id`: \[REQUIRED\] The id of the game for which the recommendations are needed.
+    2. `k`: \[OPTIONAL\] The maximum number of recommendations to provide.
+
+The returned value is a JSON string, with the following format:
+
+```json
+{
+    "message": "The message in the response.",
+    "recommendations": "A list of recommendations. The id of the most recommended user/item comes first."
+}
+```
+
+4. GET **/genre_game_rec**: Get game recommendations for a user, with games of the specified genres. The URL parameters are:
+    1. `uid`: \[REQUIRED\] The id of the user for whom the recommendations are needed.
+    2. `k`: \[OPTIONAL\] The maximum number of recommendations to provide.
+    3. `genres`: \[REQUIRED\] The comma - separated, list of genre ids for which the games are to be found.
+    4. `merge_by_and`: \[REQUIRED\] If True, the games having all the specified genres are chosen. Else, games having at least one genre are chosen.
+
+The returned value is a JSON string, with the following format:
+
+```json
+{
+    "message": "The message in the response.",
+    "recommendations": "A list of recommendations. The id of the most recommended user/item comes first."
+}
+```
+
+5. POST **/refresh_model_data**: A POST request to this endpoint causes the recommender model data to be refreshed, i.e., reloaded from the database. The request must contain a password in its header. If the password matches the one in the record (in database), only then model data is refreshed. The header must include:
+    1. `pw`: \[REQUIRED\] A valid password to authorize the refreshing of model.
+
+The returned value is a JSON string, with the following format:
+
+```json
+{
+    "message": "The message in the response.",
 }
 ```
 
