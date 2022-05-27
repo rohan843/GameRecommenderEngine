@@ -1,6 +1,6 @@
 # Game Recommender System
 
-This project has been created to demonstrate the use and applications of game recommender systems, and the algorithms that go into creating them.
+This project has been created as a part of the Microsoft Engage submission to demonstrate the use and applications of game recommender systems, and the algorithms that go into creating them.
 
 ## System Overview
 
@@ -238,6 +238,12 @@ The returned value is a JSON string, with the following format:
 ```
 
 ### Recommender Module
+
+The recommender module is an object. It provides various public methods, corresponding to each of the API requests outlined above. It uses 2 types of algorithms to provide recommendations:
+
+1. **Collaborative Filtering**: This algorithm is implemented using a matrix factorization based ML model, provided by the lightFM library. It is used to provide game recommendations for a user. The recommendations it provides allow for diversity in the recommendations. It uses implicit rating assigned to a game by a user. The way this rating is calculated is described later.
+
+2. **Content Based Filtering**: This algorithm is implemented by the `NearestNeighbors` estimator provided by the scikit-learn library. It allows for user profiles and game profiles to be used, to find the most relevant users/games. The distance metric used for finding the nearest neighbors is the **cosine distance** metric.
 
 ## DBModify Server Documetation
 
