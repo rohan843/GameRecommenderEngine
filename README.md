@@ -65,7 +65,13 @@ When the website is opened for the first time, you will be logged out. You may c
 2. Press the option that says 'Enter new user demo mode'.
 ![login modal](Docs/website_2.jpeg)
 3. The following alert will appear. It details the information that the new user was asked to submit while signing up.
-![new user alert](Docs/website_2.jpeg)
+![new user alert](Docs/website_3.jpeg)
+4. To clear any residual data from any previous demonstration of the new user, open the login modal as before (point 1), and press the 'Reset new user data' option that would have appeared. This will reload the website. In the background, the new user data in the database and the recommender will be refreshed.
+![new user reset](Docs/website_4.jpeg)
+
+> Congrats! You are now logged in as a new user.
+
+
 
 ### Home Page
 
