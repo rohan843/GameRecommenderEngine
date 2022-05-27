@@ -327,6 +327,7 @@ const getUserGameRecs = async (uid, k, useCache = true) => {
         return res.data;
     } catch (e) {
         console.log(e);
+        return null;
     }
 };
 const getUserUserRecs = async (uid, k, useCache = true) => {
@@ -358,6 +359,7 @@ const getUserUserRecs = async (uid, k, useCache = true) => {
         return res.data;
     } catch (e) {
         console.log(e);
+        return null;
     }
 };
 const getGameGameRecs = async (game_id, k, useCache = true) => {
@@ -423,6 +425,7 @@ const getUserGameGenreRecs = async (uid, k, genres, merge_by_and, useCache = tru
         return res.data;
     } catch (e) {
         console.log(e);
+        return null;
     }
 };
 
