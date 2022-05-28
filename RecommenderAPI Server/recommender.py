@@ -12,6 +12,7 @@ from usermetadata import UserMetaData
 from gamemetadata import GameMetaData
 from usergamemetadata import UserGameMetaData
 from customerrors import ValidationError
+from constants import *
 
 user_meta_data = UserMetaData()
 game_meta_data = GameMetaData()
@@ -391,7 +392,7 @@ class Recommender:
         """
 
         # ---- Establishing Connection to DataBase ----
-        client = MongoClient('mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/')
+        client = MongoClient(DB_CLUSTER_URL)
         db = client.recommenderDB
         self.client = client
         self.recommenderDB = db
@@ -642,7 +643,7 @@ class Recommender:
 
         :param user_id: The system based user id of the user.
         :param threshold: A rating value. All games whose calculated score is above it are assumed to be owned by the
-            user.
+            user (or, simply are too related to the user, which will not provide enough diversity in recommendations).
         :param k: The number of un - owned gamed to be recommended to the user.
         :return: A  list of the 'k' games recommended to the user, that the user doesn't own.
         """
@@ -668,7 +669,6 @@ class Recommender:
             index=game_ids_for_prediction
         )
 
-        # TODO: Get this list from the database.
         # Get a list of games the user already owns (or has used), sorted so that the most recommended game comes first
         owned_games = [(i, scores.loc[i]) for i, v in enumerate(interactions.tocsr()[internal_user_id].toarray()[0]) if
                        v >= threshold]
