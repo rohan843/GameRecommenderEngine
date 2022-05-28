@@ -125,7 +125,16 @@ newUserEntry.addEventListener('click', (e) => {
 resetNewUser.addEventListener('click', async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    postData('http://localhost:4000/new_user_refresh');
+
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        keepalive: true
+    };
+    fetch('/new_user_refresh', options);
+
     showToast('New User refreshed.');
     location.reload();
 });

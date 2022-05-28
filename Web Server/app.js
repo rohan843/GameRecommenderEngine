@@ -902,7 +902,16 @@ app.get('*', async (req, res) => {
 app.post('/activity-monitor', (req, res) => {
     try {
         let parsedData = JSON.parse(req.headers.body);
-        axios.post(process.env.DB_MODIFIER_USER_ACTION_ENDPOINT, parsedData);
+        axios.post(process.env.DB_MODIFIER_URL + '/store_user_actions', parsedData);
+        res.send('Success');
+    } catch (e) {
+        res.send('Failure');
+    }
+});
+
+app.post('/new_user_refresh', (req, res) => {
+    try {
+        axios.post(process.env.DB_MODIFIER_URL + '/new_user_refresh');
         res.send('Success');
     } catch (e) {
         res.send('Failure');
