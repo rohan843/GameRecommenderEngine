@@ -20,14 +20,14 @@ const genreDictRev = f(genreDict);
 
 
 // ---- DB Related work ----
-const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
+const url = process.env.DB_CLUSTER_URL;
 
 const app = express();
 app.use(parser.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ---- User Action Count ----
-const maxUACount = 20;
+const maxUACount = parseInt(process.env.MAX_UA_COUNT);
 let regUserActionCount = 0;
 
 // Returns true if recommender must be reset.
@@ -171,7 +171,7 @@ const newUserSysData = {
 }
 
 // ---- Recommender API functions ----
-const baseURL = 'http://127.0.0.1:5000';
+const baseURL = process.env.REC_URL;
 const resetRecommenderData = (pw = 'qwerty') => {
     const url = baseURL + '/refresh_model_data';
     axios.post(url, {}, {
@@ -536,6 +536,8 @@ const resolveGameRating = async (userAction) => {
 // ---- API Endpoints ----
 app.post('/new_user_refresh', (req, res) => {
 
+    console.log('New User Refresh Called');
+
     MongoClient.connect(url, async function (err, client) {
         if (err) throw err;
         const recDB = client.db("recommenderDB");
@@ -572,6 +574,7 @@ app.post('/store_user_actions', (req, res) => {
     res.send({ message: 'User actions updated.' });
 });
 
-app.listen(4000, () => {
-    console.log("Server set up to listen on port 4000.");
+const PORT = parseInt(process.env.PORT);
+app.listen(PORT, () => {
+    console.log(`Server set up to listen on port ${PORT}.`);
 });
