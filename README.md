@@ -14,7 +14,7 @@ Please follow these steps to run the 3 servers (architecture described below) lo
 6. Install python **3.9**.12 from its [official website](https://www.python.org/downloads/release/python-3912/).
 7. Open anaconda navigator.
 8. Click the *environments tab*.
-9. Click the *create* button to create a new conda environment, called `recommenderTest` for now.
+9. Click the *create* button to create a new conda environment, called `recommenderTest` for now. **Ensure `python 3.9` is being used in the environment.**
 
 ![anaconda environments tab](Docs/install_1.jpg)
 
