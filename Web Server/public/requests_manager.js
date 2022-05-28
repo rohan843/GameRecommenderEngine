@@ -7,7 +7,8 @@ async function postData(url = '', data = {}) {
             'Content-Type': 'application/json'
         },
         referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        keepalive: true,
     });
     return response;
 }
