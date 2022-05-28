@@ -995,9 +995,9 @@ app.get('/community-stats', async (req, res) => {
 //The 404 Route
 app.get('/404', async (req, res) => {
     try {
-        const numUsers = await numUsers();
+        const numUsrs = await numUsers();
         res.status(404).render('404', {
-            maxUID: (numUsers) - 2,
+            maxUID: (numUsrs) - 2,
             minUID: minUID,
         });
     } catch (e) {
