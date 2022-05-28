@@ -40,7 +40,33 @@ Please follow these steps to run the 3 servers (architecture described below) lo
 18. Run `pip install "pymongo[srv]"`
 19. Now, ensure you are in the `RecommenderAPI Server` as in point (15), via the terminal that has the `recommenderTest` environment activated, as in point (14). Now, run `python main.py`. The recommender API server should begin now. It will initialize its various components. This may take some time. Please ensure this task is fully completed before proceeding.
 
-> By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`
+> By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`. To prevent any issues, please ensure port 5000 is free. If any problem does arise, refer to the sub section on '.env Modifications' to run on a different port.
+
+20. Now that the recommender server is running, we can go to the `Web Server`. From any other terminal, from the repo folder, go to the sub folder named `Web Server`. Here, run the following commands:
+
+```bash
+npm i
+npm i cookie-parser axios node-cache
+
+nodemon app.js
+```
+
+> Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on '.env Modifications'.
+
+21. Now, the web server is up and running, only the DBModify Server is left to be run. Open another terminal, and navigate to the repo's root folder. From here, cd into the `DBModify Server` folder.
+
+22. Run the following commands to get the requisite modules:
+
+```bash
+npm i
+npm i async-mutex
+
+nodemon app.js
+```
+
+> Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on '.env Modifications'.
+
+### .env Modifications
 
 ## System Overview
 
