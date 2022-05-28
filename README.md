@@ -4,7 +4,10 @@ This project has been created as a part of the Microsoft Engage submission to de
 
 ## Steps To Run Locally
 
+
 Please follow these steps to run the 3 servers (architecture described below) locally. For this, python 3.9.12 was used. The OS used was Windows 11, but it should work on Windows 10 as well. The steps are:
+
+> Note: Edge was used for testing and developing the frontend scripts. The code also works in Chrome, but may lead to issues in firefox.
 
 1. Install git.
 2. Clone the github repo in any folder of your chioce.
