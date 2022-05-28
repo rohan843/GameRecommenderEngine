@@ -538,25 +538,30 @@ app.post('/new_user_refresh', (req, res) => {
 
     console.log('New User Refresh Called');
 
-    MongoClient.connect(url, async function (err, client) {
-        if (err) throw err;
-        const recDB = client.db("recommenderDB");
-        const sysDB = client.db("sysDB");
-        const query = { uid: -2 };
-        const newRecValues = { $set: newUserRecData };
-        const newSysValues = { $set: newUserSysData };
-        try {
-            await recDB.collection("allUserData").updateOne(query, newRecValues);
-            await sysDB.collection("userGenreBehaviour").updateOne(query, newSysValues);
-            await sysDB.collection("userGameBehaviour").deleteMany(query);
-            await recDB.collection("userGameInteractions").deleteMany(query);
-        } catch (e) {
-            console.log(e);
-        }
-        res.send({ message: 'New user refreshed.' });
-        resetRecommenderData();
-        client.close();
-    });
+    try {
+        MongoClient.connect(url, async function (err, client) {
+            if (err) throw err;
+            const recDB = client.db("recommenderDB");
+            const sysDB = client.db("sysDB");
+            const query = { uid: -2 };
+            const newRecValues = { $set: newUserRecData };
+            const newSysValues = { $set: newUserSysData };
+            try {
+                await recDB.collection("allUserData").updateOne(query, newRecValues);
+                await sysDB.collection("userGenreBehaviour").updateOne(query, newSysValues);
+                await sysDB.collection("userGameBehaviour").deleteMany(query);
+                await recDB.collection("userGameInteractions").deleteMany(query);
+            } catch (e) {
+                console.log(e);
+            }
+            res.send({ message: 'New user refreshed.' });
+            resetRecommenderData();
+            client.close();
+        });
+    } catch (e) {
+        console.log(e);
+        res.send({ message: 'Error occurred while refreshing recommender' });
+    }
 
 });
 
@@ -569,7 +574,7 @@ app.post('/store_user_actions', (req, res) => {
             resolveGenreUserAction(userAction);
         } else if (userAction.type === 'game') {
             resolveGameUserAction(userAction);
-        }        
+        }
     }
     res.send({ message: 'User actions updated.' });
 });
