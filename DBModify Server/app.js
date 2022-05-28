@@ -567,13 +567,17 @@ app.post('/new_user_refresh', (req, res) => {
 
 app.post('/store_user_actions', (req, res) => {
     for (let userAction of req.body) {
-        if (!validateUA(userAction)) {
-            continue;
-        }
-        if (userAction.type === 'genre') {
-            resolveGenreUserAction(userAction);
-        } else if (userAction.type === 'game') {
-            resolveGameUserAction(userAction);
+        try {
+            if (!validateUA(userAction)) {
+                continue;
+            }
+            if (userAction.type === 'genre') {
+                resolveGenreUserAction(userAction);
+            } else if (userAction.type === 'game') {
+                resolveGameUserAction(userAction);
+            }
+        } catch (e) {
+            console.log(e);
         }
     }
     res.send({ message: 'User actions updated.' });
