@@ -6,6 +6,7 @@ const cookieHandler = require('./Utilities/cookieHandler.js');
 const MongoClient = require('mongodb').MongoClient;
 const axios = require('axios');
 const NodeCache = require("node-cache");
+const path = require('path');
 
 // ---- Caches ----
 const recommenderCache = new NodeCache({ stdTTL: 500, checkperiod: 360 });
@@ -435,6 +436,7 @@ app.set('view engine', 'ejs');
 app.use(parser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
@@ -908,6 +910,9 @@ app.post('/activity-monitor', (req, res) => {
 });
 
 // ---- Server Setup ----
-app.listen(3000, () => {
-    console.log("Server set up to listen on port 3000.");
+
+const PORT = parseInt(process.env.PORT);
+
+app.listen(PORT, () => {
+    console.log(`Server set up to listen on port ${PORT}.`);
 });
