@@ -5,7 +5,11 @@ This project has been created as a part of the Microsoft Engage submission to de
 ## Steps To Run Locally
 
 
-Please follow these steps to run the 3 servers (architecture described below) locally. For this, python 3.9.12 was used. The OS used was Windows 11, but it should work on Windows 10 as well. The steps are:
+Please follow these steps to run the 3 servers (architecture described below) locally. For this, python 3.9.12 was used. The OS used was Windows 11, but it should work on Windows 10 as well. 
+
+> If ports `3000`, `4000`, and `5000` are free on `localhost (127.0.0.1)`, the following steps can be followed, but, if they aren't free, please first read the steps below, along with the [.env And Config Modifications](#env-and-config-modifications) section.
+
+The steps are:
 
 > Note: Edge was used for testing and developing the frontend scripts. The code also works in Chrome, but may lead to issues in firefox.
 
@@ -43,7 +47,7 @@ Please follow these steps to run the 3 servers (architecture described below) lo
 18. Run `pip install "pymongo[srv]"`
 19. Now, ensure you are in the `RecommenderAPI Server` as in point (15), via the terminal that has the `recommenderTest` environment activated, as in point (14). Now, run `python main.py`. The recommender API server should begin now. It will initialize its various components. This may take some time. Please ensure this task is fully completed before proceeding.
 
-> By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`. To prevent any issues, please ensure port 5000 is free. If any problem does arise, refer to the sub section on '.env Modifications' to run on a different port.
+> By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`. To prevent any issues, please ensure port 5000 is free. If any problem does arise, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications) to run on a different port.
 
 20. Now that the recommender server is running, we can go to the `Web Server`. From any other terminal, from the repo folder, go to the sub folder named `Web Server`. Here, run the following commands:
 
@@ -54,7 +58,7 @@ npm i cookie-parser axios node-cache
 nodemon app.js
 ```
 
-> Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on '.env Modifications'.
+> Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications).
 
 21. Now, the web server is up and running, only the DBModify Server is left to be run. Open another terminal, and navigate to the repo's root folder. From here, cd into the `DBModify Server` folder.
 
@@ -67,9 +71,33 @@ npm i async-mutex
 nodemon app.js
 ```
 
-> Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on '.env Modifications'.
+> Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications).
 
-### .env Modifications
+### .env And Config Modifications
+
+There are 3 config files, as follows:
+
+1. [.env file for the Web Server](/Web%20Server/.env)
+2. [.env file for the DBModify Server](/DBModify%20Server/.env)
+3. [constants.py file for the RecommenderAPI Server](/RecommenderAPI%20Server/constants.py)
+
+These files have the following environment variables declared. Here, they are described, along with the guidelines to change them as per needs:
+
+1. \[Mongo + SRV URL\] `DB_CLUSTER_URL`: This is the URL to the MongoDB Atlas cluster, that contains the data. Most probably, it will not have to be modified.
+2. \[Non-Negative Integer\] `PORT`: This variable is present in the .env files for the Web Server, and for the DBModify Server. For each of those servers individually, this value provides the port where the servers must run. It is different for both servers, with the default values being `3000 for Web Server` and `4000 for DBModify Server`. If any of these ports are busy, change the corresponding port number to a free port. Please note that the 2 PORT variables, in either of the config files are for 2 different servers, and must themselves have 2 different values. (The specified port must also be free for both.)
+3. \[Non-Negative Integer\] `FLASK_PORT`: Like the `PORT` environment variable, this provides the port where the RecommenderAPI Server must run. By default, this port is `port 5000`. As the `constants.py` file is a python file, please be sure to enter a new port value, if needed, as an integer number (no 'singe quotes' or "double quotes").
+4. \[HTTP URL\] `REC_URL`: This is the URL of the RecommenderAPI Server. This environment variable is present both in Web Server's and DBModify Server's .env files. The default value is `"http://127.0.0.1:5000"`. This tells the servers that the recommender API server is running on port 5000, with the `127.0.0.1` being the `localhost` address. This exact value (the full URL with port) is received when running the Flask server as in point (19) above, in the terminal window, and can be matched and verified from there.
+5. \[HTTP URL\] `DB_MODIFIER_URL`: This is the URL of the DBModify Server. This environment variable is present in the .env file of the Web Server. By default, it is `"http://localhost:4000"`. In case the DBModify Server is not running on port 4000, but on some other port, please modify the port in the URL to be the port where the DBModify Server is running.
+6. \[Positive Integer (>=1)\] `MAX_UA_COUNT`: This is a value specific to the .env file of DBModify Server. It defines the maximum number of UserActions allowed to occur, before the recommender is refreshed with updated data from the database (more on this is covered in the sections below). If this value is low, user actions will be completely reflected in the recommendations promptly, but it may have some performance impact on the RecommenderAPI Server. If kept high, UserActions will be reflected in the recommendations partially when they occur, and some type of recommendations might not fully reflect the user actions quickly (as the recommender will be refreshed less frequently), but the performance impact which occured before will be very lessened here. Currently its value is `20` for demonstrability. **However, if lot's of people will be using the website simultaneously, it is recommended to increase its value to around 200, or more, depending upon the number of users. (More users => higher value)**
+
+> It is important to use the environment variables carefully. They must have valid data, or, the system might crash, or misbehave. HTTP URLs must be valid, and NOT end with a '/'. 
+>```
+>http://localhost:4000/ -> INVALID
+>http://localhost:4000 -> VALID
+>```
+> Also, the port numbers are non - negative values. They can vary from 0 through 65535. Please ensure that for `PORT` and `FLASK_PORT`, correct values are used. The `MAX_UA_COUNT` needs to be an integer equal to or greater than 1. As it is used within the code, wrong values/datatypes will lead to errors. Although the MongoDB address need not be changed, if it does need to be changed, please ensure it is correctly replaced. Wherever any discrepancy may occur, the format in which the current environment variables are specified is the format to follow.
+
+
 
 ## System Overview
 
