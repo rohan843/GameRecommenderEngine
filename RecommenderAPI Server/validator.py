@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from colorama import Fore, Style
+from constants import *
 
 
 class Validator:
@@ -8,7 +9,7 @@ class Validator:
     """
 
     def __init__(self):
-        self.client = MongoClient('mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/')
+        self.client = MongoClient(DB_CLUSTER_URL)
         self.sysDB = self.client.sysDB
         self.recommenderDB = self.client.recommenderDB
         self._log('Validator Initialized')
