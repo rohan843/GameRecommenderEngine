@@ -40,7 +40,7 @@ const getGameData = async (game_ids) => {
 
     const missedIds = [];
     const cachedValues = [];
-    for(let id of game_ids) {
+    for (let id of game_ids) {
         const strId = id.toString();
         const cachedValue = gameDataCache.get(strId);
         if (cachedValue != undefined) {
@@ -95,7 +95,7 @@ const getGameFeatureData = async (game_ids) => {
 
     const missedIds = [];
     const cachedValues = [];
-    for(let id of game_ids) {
+    for (let id of game_ids) {
         const strId = id.toString();
         const cachedValue = gameFeaturesCache.get(strId);
         if (cachedValue != undefined) {
@@ -286,6 +286,35 @@ const featuredGames = async () => {
     }
 };
 
+// Returns true if the UID provided is an integer and is valid.
+const checkUIDValid = async (uid) => {
+    if (typeof uid === typeof 1) {
+        const client = await MongoClient.connect(url).catch(err => { console.log(err) });
+        if (!client) {
+            return false;
+        } else {
+            try {
+                const db = client.db('recommenderDB');
+                const collection = db.collection('allUserData');
+                const user = await collection.findOne({ uid: uid });
+                client.close();
+                if (user) {
+                    return true;
+                } else {
+                    return false;
+                }
+                return res;
+            } catch (e) {
+                console.log(e);
+                client.close();
+                return false;
+            }
+        }
+    } else {
+        return false;
+    }
+};
+
 
 // ---- Constants ----
 const allGenres = [];
@@ -441,463 +470,542 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ---- Server Routes ----
 app.get('/', async (req, res) => {
 
-    let uid = cookieHandler.getUid(req.cookies);
-    // const user = await userDetails(uid);
-    // const top6genres = getTop6Genres(user);
-    // const userGameRecs = (await getUserGameRecs(uid, 5)).recommendations;
-    // const featuredGamesList = await featuredGames();
-
-    let [user, userGameRecs, featuredGamesList] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 5), featuredGames()]);
-    userGameRecs = userGameRecs.recommendations;
-    const top6genres = getTop6Genres(user);
-
-
-    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
-    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
-    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
-    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
-    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
-    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
-
-    // let [
-    //     featuredGamesData, 
-    //     featuredGamesFeatures, 
-    //     profileBasedGames, 
-    //     similarUserBasedGames,
-    //     profileBasedGameFeatures,
-    //     similarUserBasedGameFeatures
-    // ] = await Promise.all([
-    //     getGameData(featuredGamesList), 
-    //     getGameFeatureData(featuredGamesList), 
-    //     getGameData(userGameRecs.profile_based), 
-    //     getGameData(userGameRecs.similar_user_based),
-    //     getGameFeatureData(userGameRecs.profile_based),
-    //     getGameFeatureData(userGameRecs.similar_user_based)
-    // ]);
-    // featuredGamesData = sortGameData(featuredGamesList, featuredGamesData);
-    // featuredGamesFeatures = sortGameData(featuredGamesList, featuredGamesFeatures);
-    // profileBasedGames = sortGameData(userGameRecs.profile_based, profileBasedGames);
-    // similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, similarUserBasedGames);
-    // profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, profileBasedGameFeatures);
-    // similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, similarUserBasedGameFeatures);
-
-    const userRecs = [];
-    for (let i = 0; i < profileBasedGames.length; i++) {
-        const num = getRndInteger(1, 10);
-        userRecs.push({
-            id: profileBasedGames[i].id,
-            img: `assets/images/post-${num}.jpg`,
-            sqImg: `assets/images/post-${num}-sm.jpg`,
-            title: profileBasedGames[i].name,
-            price: profileBasedGameFeatures[i].price,
-            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
-            genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
-            rating: profileBasedGameFeatures[i].rating
-        });
-    }
-
-    const otherUserBasedRecs = [];
-    for (let i = 0; i < similarUserBasedGames.length; i++) {
-        otherUserBasedRecs.push({
-            id: similarUserBasedGames[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-            title: similarUserBasedGames[i].name,
-            price: similarUserBasedGameFeatures[i].price,
-            rating: similarUserBasedGameFeatures[i].rating,
-        });
-    }
-
-
-    const fourFeaturedGames = [];
-    for (let i = 0; i < featuredGamesData.length; i++) {
-        const num = getRndInteger(1, 17);
-        fourFeaturedGames.push({
-            img: `assets/images/product-${num}-xs.jpg`,
-            id: featuredGamesData[i].id,
-            title: featuredGamesData[i].name,
-            rating: featuredGamesFeatures[i].rating,
-            price: featuredGamesFeatures[i].price
-        });
-    }
-
-    res.render('index', {
-        bestSeller: fourFeaturedGames,
-        otherUserLikes: otherUserBasedRecs,
-        genres: top6genres,
-        userRecs: userRecs,
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
-});
-
-app.get('/store-product', async (req, res) => {
-    const game_id = parseInt(req.query.game_id);
-    const uid = cookieHandler.getUid(req.cookies);
-    const similarUserRecs = (await getUserGameRecs(uid, 4)).recommendations.similar_user_based;
-    const similarGameData = sortGameData(similarUserRecs, await getGameData(similarUserRecs));
-    const similarGameFeatureData = sortGameData(similarUserRecs, await getGameFeatureData(similarUserRecs));
-    otherUserLikes = [];
-    for (let i = 0; i < similarGameData.length; i++) {
-        otherUserLikes.push({
-            title: similarGameData[i].name,
-            rating: similarGameFeatureData[i].rating,
-            price: similarGameFeatureData[i].price.toString(),
-            id: similarGameData[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`
-        });
-    }
-    if (game_id !== 0 && !game_id) {
-        res.render('store-product', {
-            genreCategories: allGenres.slice(0, 7),
-            otherUserLikes: otherUserLikes,
-            relatedProducts: [],
-            mainProductDesc: {
-                id: null,
-                name: 'No Game Found',
-                platformSpecs: 'N/A',
-                price: 'N/A',
-                desc: 'N/A',
-                tags: 'N/A',
-                genres: 'N/A',
-                release: 'N/A',
-                matureContent: 'N/A',
-                rating: 0
-            },
-            allGenres: allGenres,
-            maxUID: (await numUsers()) - 2,
-            minUID: minUID,
-        });
-    } else {
-        const gameGameRecs = await getGameGameRecs(game_id, 4);
-        if (!gameGameRecs) {
-            res.redirect('/404');
+    try {
+        let uid = cookieHandler.getUid(req.cookies);
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
             return;
         }
-        const relatedRecs = (gameGameRecs).recommendations;
-        const relatedGameData = sortGameData(relatedRecs, await getGameData(relatedRecs));
-        const relatedGameFeatureData = sortGameData(relatedRecs, await getGameFeatureData(relatedRecs));
-        const relatedProducts = [];
-        for (let i = 0; i < relatedGameData.length; i++) {
-            relatedProducts.push({
-                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-                title: relatedGameData[i].name,
-                rating: relatedGameFeatureData[i].rating,
-                price: relatedGameFeatureData[i].price.toString(),
-                id: relatedGameFeatureData[i].id
+        // const user = await userDetails(uid);
+        // const top6genres = getTop6Genres(user);
+        // const userGameRecs = (await getUserGameRecs(uid, 5)).recommendations;
+        // const featuredGamesList = await featuredGames();
+
+        let [user, userGameRecs, featuredGamesList] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 5), featuredGames()]);
+        userGameRecs = userGameRecs.recommendations;
+        const top6genres = getTop6Genres(user);
+
+
+        const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
+        const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
+        const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+        const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+        const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+        const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+        // let [
+        //     featuredGamesData, 
+        //     featuredGamesFeatures, 
+        //     profileBasedGames, 
+        //     similarUserBasedGames,
+        //     profileBasedGameFeatures,
+        //     similarUserBasedGameFeatures
+        // ] = await Promise.all([
+        //     getGameData(featuredGamesList), 
+        //     getGameFeatureData(featuredGamesList), 
+        //     getGameData(userGameRecs.profile_based), 
+        //     getGameData(userGameRecs.similar_user_based),
+        //     getGameFeatureData(userGameRecs.profile_based),
+        //     getGameFeatureData(userGameRecs.similar_user_based)
+        // ]);
+        // featuredGamesData = sortGameData(featuredGamesList, featuredGamesData);
+        // featuredGamesFeatures = sortGameData(featuredGamesList, featuredGamesFeatures);
+        // profileBasedGames = sortGameData(userGameRecs.profile_based, profileBasedGames);
+        // similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, similarUserBasedGames);
+        // profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, profileBasedGameFeatures);
+        // similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, similarUserBasedGameFeatures);
+
+        const userRecs = [];
+        for (let i = 0; i < profileBasedGames.length; i++) {
+            const num = getRndInteger(1, 10);
+            userRecs.push({
+                id: profileBasedGames[i].id,
+                img: `assets/images/post-${num}.jpg`,
+                sqImg: `assets/images/post-${num}-sm.jpg`,
+                title: profileBasedGames[i].name,
+                price: profileBasedGameFeatures[i].price,
+                desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
+                genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+                rating: profileBasedGameFeatures[i].rating
             });
         }
 
-        const game_ids = [game_id];
-        const gameData = sortGameData(game_ids, await getGameData(game_ids));
-        const gameFeatures = (await getGameFeatureData([game_id]))[0];
-        res.render('store-product', {
-            genreCategories: allGenres.slice(0, 7),
-            otherUserLikes: otherUserLikes,
-            relatedProducts: relatedProducts,
-            mainProductDesc: ((gameData.length >= 1) && {
-                id: gameData[0].id,
-                name: gameData[0].name,
-                platformSpecs: gameData[0].recommended_requirements || 'N/A',
-                price: parseFloat(gameFeatures.price).toFixed(2),
-                desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
-                tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
-                genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
-                release: gameData[0].release_date_y,
-                matureContent: (gameData[0].mature_content && gameData[0].mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
-                rating: 0 || gameFeatures.rating,
-            }) || {
-                id: -1,
-                name: 'No Game Found',
-                platformSpecs: 'N/A',
-                price: 'N/A',
-                desc: 'N/A',
-                tags: 'N/A',
-                genres: 'N/A',
-                release: 'N/A',
-                matureContent: 'N/A',
-                rating: 0
-            },
+        const otherUserBasedRecs = [];
+        for (let i = 0; i < similarUserBasedGames.length; i++) {
+            otherUserBasedRecs.push({
+                id: similarUserBasedGames[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: similarUserBasedGames[i].name,
+                price: similarUserBasedGameFeatures[i].price,
+                rating: similarUserBasedGameFeatures[i].rating,
+            });
+        }
+
+
+        const fourFeaturedGames = [];
+        for (let i = 0; i < featuredGamesData.length; i++) {
+            const num = getRndInteger(1, 17);
+            fourFeaturedGames.push({
+                img: `assets/images/product-${num}-xs.jpg`,
+                id: featuredGamesData[i].id,
+                title: featuredGamesData[i].name,
+                rating: featuredGamesFeatures[i].rating,
+                price: featuredGamesFeatures[i].price
+            });
+        }
+
+        res.render('index', {
+            bestSeller: fourFeaturedGames,
+            otherUserLikes: otherUserBasedRecs,
+            genres: top6genres,
+            userRecs: userRecs,
             allGenres: allGenres,
             maxUID: (await numUsers()) - 2,
             minUID: minUID,
         });
+    } catch (e) {
+        res.redirect('/error-route');
+    }
+});
+
+app.get('/store-product', async (req, res) => {
+    try {
+        const game_id = parseInt(req.query.game_id);
+        const uid = cookieHandler.getUid(req.cookies);
+
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
+
+        const similarUserRecs = (await getUserGameRecs(uid, 4)).recommendations.similar_user_based;
+        const similarGameData = sortGameData(similarUserRecs, await getGameData(similarUserRecs));
+        const similarGameFeatureData = sortGameData(similarUserRecs, await getGameFeatureData(similarUserRecs));
+        otherUserLikes = [];
+        for (let i = 0; i < similarGameData.length; i++) {
+            otherUserLikes.push({
+                title: similarGameData[i].name,
+                rating: similarGameFeatureData[i].rating,
+                price: similarGameFeatureData[i].price.toString(),
+                id: similarGameData[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`
+            });
+        }
+        if (game_id !== 0 && !game_id) {
+            res.render('store-product', {
+                genreCategories: allGenres.slice(0, 7),
+                otherUserLikes: otherUserLikes,
+                relatedProducts: [],
+                mainProductDesc: {
+                    id: null,
+                    name: 'No Game Found',
+                    platformSpecs: 'N/A',
+                    price: 'N/A',
+                    desc: 'N/A',
+                    tags: 'N/A',
+                    genres: 'N/A',
+                    release: 'N/A',
+                    matureContent: 'N/A',
+                    rating: 0
+                },
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
+            });
+        } else {
+            const gameGameRecs = await getGameGameRecs(game_id, 4);
+            if (!gameGameRecs) {
+                res.redirect('/404');
+                return;
+            }
+            const relatedRecs = (gameGameRecs).recommendations;
+            const relatedGameData = sortGameData(relatedRecs, await getGameData(relatedRecs));
+            const relatedGameFeatureData = sortGameData(relatedRecs, await getGameFeatureData(relatedRecs));
+            const relatedProducts = [];
+            for (let i = 0; i < relatedGameData.length; i++) {
+                relatedProducts.push({
+                    img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                    title: relatedGameData[i].name,
+                    rating: relatedGameFeatureData[i].rating,
+                    price: relatedGameFeatureData[i].price.toString(),
+                    id: relatedGameFeatureData[i].id
+                });
+            }
+
+            const game_ids = [game_id];
+            const gameData = sortGameData(game_ids, await getGameData(game_ids));
+            const gameFeatures = (await getGameFeatureData([game_id]))[0];
+            res.render('store-product', {
+                genreCategories: allGenres.slice(0, 7),
+                otherUserLikes: otherUserLikes,
+                relatedProducts: relatedProducts,
+                mainProductDesc: ((gameData.length >= 1) && {
+                    id: gameData[0].id,
+                    name: gameData[0].name,
+                    platformSpecs: gameData[0].recommended_requirements || 'N/A',
+                    price: parseFloat(gameFeatures.price).toFixed(2),
+                    desc: (gameData[0].game_description && gameData[0].game_description.slice(0, 500) + '...') || 'Description not available.',
+                    tags: (gameData[0].popular_tags && gameData[0].popular_tags.slice(0, 100) + '...') || '',
+                    genres: (gameData[0].genre && gameData[0].genre.slice(0, 100) + '...') || '',
+                    release: gameData[0].release_date_y,
+                    matureContent: (gameData[0].mature_content && gameData[0].mature_content.slice(0, 150) + '...') || 'Suitable for people aged 12 and over.',
+                    rating: 0 || gameFeatures.rating,
+                }) || {
+                    id: -1,
+                    name: 'No Game Found',
+                    platformSpecs: 'N/A',
+                    price: 'N/A',
+                    desc: 'N/A',
+                    tags: 'N/A',
+                    genres: 'N/A',
+                    release: 'N/A',
+                    matureContent: 'N/A',
+                    rating: 0
+                },
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
+            });
+        }
+    } catch (e) {
+        res.redirect('/error-route');
     }
 });
 
 app.get('/store', async (req, res) => {
-    const uid = cookieHandler.getUid(req.cookies);
-    const user = await userDetails(uid);
-    const top6genres = getTop6Genres(user);
-    const userGameRecs = (await getUserGameRecs(uid, 16)).recommendations;
-    const featuredGamesList = await featuredGames();
-    const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
-    const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
-    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
-    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
-    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
-    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+    try {
+        const uid = cookieHandler.getUid(req.cookies);
 
-    const top10Recs = [];
-    for (let i = 5; i < profileBasedGames.length; i++) {
-        top10Recs.push({
-            id: profileBasedGames[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-            title: profileBasedGames[i].name,
-            price: profileBasedGameFeatures[i].price
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
+
+        const user = await userDetails(uid);
+        const top6genres = getTop6Genres(user);
+        const userGameRecs = (await getUserGameRecs(uid, 16)).recommendations;
+        const featuredGamesList = await featuredGames();
+        const featuredGamesData = sortGameData(featuredGamesList, await getGameData(featuredGamesList));
+        const featuredGamesFeatures = sortGameData(featuredGamesList, await getGameFeatureData(featuredGamesList));
+        const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+        const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+        const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+        const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+        const top10Recs = [];
+        for (let i = 5; i < profileBasedGames.length; i++) {
+            top10Recs.push({
+                id: profileBasedGames[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: profileBasedGames[i].name,
+                price: profileBasedGameFeatures[i].price
+            });
+        }
+
+        const mostPopularGames = [];
+        for (let i = 0; i < Math.min(similarUserBasedGames.length, 6); i++) {
+            mostPopularGames.push({
+                id: similarUserBasedGames[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: similarUserBasedGames[i].name,
+                price: similarUserBasedGameFeatures[i].price,
+                rating: similarUserBasedGameFeatures[i].rating
+            });
+        }
+
+        const fourFeaturedGames = [];
+        for (let i = 0; i < featuredGamesData.length; i++) {
+            fourFeaturedGames.push({
+                img: `assets/images/product-${getRndInteger(1, 17)}-md.jpg`,
+                id: featuredGamesData[i].id,
+                title: featuredGamesData[i].name,
+                rating: featuredGamesFeatures[i].rating,
+                desc: featuredGamesData[i].desc_snippet.slice(0, 150) + '...',
+                price: featuredGamesFeatures[i].price
+            });
+        }
+
+        res.render('store', {
+            genre1: top6genres[0],
+            genre2: top6genres[1],
+            genre3: top6genres[2],
+            featuredProduct1: {
+                id: profileBasedGames[0].id,
+                title: profileBasedGames[0].name
+            },
+            featuredProduct2: {
+                id: profileBasedGames[1].id,
+                title: profileBasedGames[1].name
+            },
+            semiFeaturedProduct1: {
+                id: profileBasedGames[2].id,
+                title: profileBasedGames[2].name
+            },
+            semiFeaturedProduct2: {
+                id: profileBasedGames[3].id,
+                title: profileBasedGames[3].name
+            },
+            semiFeaturedProduct3: {
+                id: profileBasedGames[4].id,
+                title: profileBasedGames[4].name
+            },
+            semiFeaturedProduct4: {
+                id: profileBasedGames[5].id,
+                title: profileBasedGames[5].name
+            },
+            top10Recs: top10Recs,
+            fourFeaturedGames: fourFeaturedGames,
+            mostPopularGames: mostPopularGames,
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
         });
+    } catch (e) {
+        res.redirect('/error-route');
     }
-
-    const mostPopularGames = [];
-    for (let i = 0; i < Math.min(similarUserBasedGames.length, 6); i++) {
-        mostPopularGames.push({
-            id: similarUserBasedGames[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-            title: similarUserBasedGames[i].name,
-            price: similarUserBasedGameFeatures[i].price,
-            rating: similarUserBasedGameFeatures[i].rating
-        });
-    }
-
-    const fourFeaturedGames = [];
-    for (let i = 0; i < featuredGamesData.length; i++) {
-        fourFeaturedGames.push({
-            img: `assets/images/product-${getRndInteger(1, 17)}-md.jpg`,
-            id: featuredGamesData[i].id,
-            title: featuredGamesData[i].name,
-            rating: featuredGamesFeatures[i].rating,
-            desc: featuredGamesData[i].desc_snippet.slice(0, 150) + '...',
-            price: featuredGamesFeatures[i].price
-        });
-    }
-
-    res.render('store', {
-        genre1: top6genres[0],
-        genre2: top6genres[1],
-        genre3: top6genres[2],
-        featuredProduct1: {
-            id: profileBasedGames[0].id,
-            title: profileBasedGames[0].name
-        },
-        featuredProduct2: {
-            id: profileBasedGames[1].id,
-            title: profileBasedGames[1].name
-        },
-        semiFeaturedProduct1: {
-            id: profileBasedGames[2].id,
-            title: profileBasedGames[2].name
-        },
-        semiFeaturedProduct2: {
-            id: profileBasedGames[3].id,
-            title: profileBasedGames[3].name
-        },
-        semiFeaturedProduct3: {
-            id: profileBasedGames[4].id,
-            title: profileBasedGames[4].name
-        },
-        semiFeaturedProduct4: {
-            id: profileBasedGames[5].id,
-            title: profileBasedGames[5].name
-        },
-        top10Recs: top10Recs,
-        fourFeaturedGames: fourFeaturedGames,
-        mostPopularGames: mostPopularGames,
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
 });
 
 app.get('/store-catalog', async (req, res) => {
 
-    let uid = cookieHandler.getUid(req.cookies);
-    let [user, userGameRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15)]);
-    userGameRecs = userGameRecs.recommendations;
-    const top6genres = getTop6Genres(user);
+    try {
+        let uid = cookieHandler.getUid(req.cookies);
 
-    const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
-    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
-    const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
-    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
 
-    const otherUserBasedRecs = [];
-    for (let i = 0; i < Math.min(4, similarUserBasedGames.length); i++) {
-        otherUserBasedRecs.push({
-            id: similarUserBasedGames[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-            title: similarUserBasedGames[i].name,
-            price: similarUserBasedGameFeatures[i].price,
-            rating: similarUserBasedGameFeatures[i].rating,
+        let [user, userGameRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 15)]);
+        userGameRecs = userGameRecs.recommendations;
+        const top6genres = getTop6Genres(user);
+
+        const profileBasedGames = sortGameData(userGameRecs.profile_based, await getGameData(userGameRecs.profile_based));
+        const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+        const profileBasedGameFeatures = sortGameData(userGameRecs.profile_based, await getGameFeatureData(userGameRecs.profile_based));
+        const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+        const otherUserBasedRecs = [];
+        for (let i = 0; i < Math.min(4, similarUserBasedGames.length); i++) {
+            otherUserBasedRecs.push({
+                id: similarUserBasedGames[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: similarUserBasedGames[i].name,
+                price: similarUserBasedGameFeatures[i].price,
+                rating: similarUserBasedGameFeatures[i].rating,
+            });
+        }
+
+        const userRecs = [];
+        for (let i = 0; i < profileBasedGames.length; i++) {
+            const num = getRndInteger(1, 10);
+            userRecs.push({
+                id: profileBasedGames[i].id,
+                img: `assets/images/product-${num}-xs.jpg`,
+                title: profileBasedGames[i].name,
+                price: profileBasedGameFeatures[i].price,
+                desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
+                genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+                rating: profileBasedGameFeatures[i].rating
+            });
+        }
+
+        res.render('store-catalog', {
+            genre1: top6genres[0],
+            genre2: top6genres[1],
+            genre3: top6genres[2],
+            otherUserLikes: otherUserBasedRecs,
+            searchResults: userRecs,
+            genreCategories: allGenres.slice(0, 7),
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
         });
+    } catch (e) {
+        res.redirect('/error-route');
     }
-
-    const userRecs = [];
-    for (let i = 0; i < profileBasedGames.length; i++) {
-        const num = getRndInteger(1, 10);
-        userRecs.push({
-            id: profileBasedGames[i].id,
-            img: `assets/images/product-${num}-xs.jpg`,
-            title: profileBasedGames[i].name,
-            price: profileBasedGameFeatures[i].price,
-            desc: profileBasedGames[i].desc_snippet || 'No description available at the moment.',
-            genre: (profileBasedGames[i].genre && profileBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
-            rating: profileBasedGameFeatures[i].rating
-        });
-    }
-
-    res.render('store-catalog', {
-        genre1: top6genres[0],
-        genre2: top6genres[1],
-        genre3: top6genres[2],
-        otherUserLikes: otherUserBasedRecs,
-        searchResults: userRecs,
-        genreCategories: allGenres.slice(0, 7),
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
 });
 
 app.get('/search', async (req, res) => {
 
-    let uid = cookieHandler.getUid(req.cookies);
+    try {
+        let uid = cookieHandler.getUid(req.cookies);
 
-    let queryGenres = req.query.genres;
-    let queryMergeByAnd = req.query.merge_by_and;
-    if (!queryMergeByAnd || queryMergeByAnd.toLowerCase() !== 'false') {
-        queryMergeByAnd = 'true';
-    }
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
 
-    let regexGenreListCheck = /^(\d(\d)*,)*\d(\d*)$/;
+        let queryGenres = req.query.genres;
+        let queryMergeByAnd = req.query.merge_by_and;
+        if (!queryMergeByAnd || queryMergeByAnd.toLowerCase() !== 'false') {
+            queryMergeByAnd = 'true';
+        }
 
-    if (!queryGenres || !regexGenreListCheck.test(queryGenres)) {
-        queryGenres = [];
-    } else {
-        queryGenres = queryGenres.trim().split(',');
-    }
+        let regexGenreListCheck = /^(\d(\d)*,)*\d(\d*)$/;
 
-    let [user, userGameRecs, genreRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 4), getUserGameGenreRecs(uid, 15, queryGenres, queryMergeByAnd)]);
-    userGameRecs = userGameRecs.recommendations;
-    genreRecs = genreRecs.recommendations;
-    const top6genres = getTop6Genres(user);
+        if (!queryGenres || !regexGenreListCheck.test(queryGenres)) {
+            queryGenres = [];
+        } else {
+            queryGenres = queryGenres.trim().split(',');
+        }
 
-    const genreBasedGames = sortGameData(genreRecs, await getGameData(genreRecs));
-    const genreBasedGameFeatures = sortGameData(genreRecs, await getGameFeatureData(genreRecs));
-    const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
-    const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+        let [user, userGameRecs, genreRecs] = await Promise.all([userDetails(uid), getUserGameRecs(uid, 4), getUserGameGenreRecs(uid, 15, queryGenres, queryMergeByAnd)]);
+        userGameRecs = userGameRecs.recommendations;
+        genreRecs = genreRecs.recommendations;
+        const top6genres = getTop6Genres(user);
 
-    const otherUserBasedRecs = [];
-    for (let i = 0; i < Math.min(4, similarUserBasedGames.length); i++) {
-        otherUserBasedRecs.push({
-            id: similarUserBasedGames[i].id,
-            img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-            title: similarUserBasedGames[i].name,
-            price: similarUserBasedGameFeatures[i].price,
-            rating: similarUserBasedGameFeatures[i].rating,
+        const genreBasedGames = sortGameData(genreRecs, await getGameData(genreRecs));
+        const genreBasedGameFeatures = sortGameData(genreRecs, await getGameFeatureData(genreRecs));
+        const similarUserBasedGames = sortGameData(userGameRecs.similar_user_based, await getGameData(userGameRecs.similar_user_based));
+        const similarUserBasedGameFeatures = sortGameData(userGameRecs.similar_user_based, await getGameFeatureData(userGameRecs.similar_user_based));
+
+        const otherUserBasedRecs = [];
+        for (let i = 0; i < Math.min(4, similarUserBasedGames.length); i++) {
+            otherUserBasedRecs.push({
+                id: similarUserBasedGames[i].id,
+                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                title: similarUserBasedGames[i].name,
+                price: similarUserBasedGameFeatures[i].price,
+                rating: similarUserBasedGameFeatures[i].rating,
+            });
+        }
+
+        const userRecs = [];
+        for (let i = 0; i < genreBasedGames.length; i++) {
+            const num = getRndInteger(1, 10);
+            userRecs.push({
+                id: genreBasedGames[i].id,
+                img: `assets/images/product-${num}-xs.jpg`,
+                title: genreBasedGames[i].name,
+                price: genreBasedGameFeatures[i].price,
+                desc: genreBasedGames[i].desc_snippet || 'No description available at the moment.',
+                genre: (genreBasedGames[i].genre && genreBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
+                rating: genreBasedGameFeatures[i].rating
+            });
+        }
+
+        res.render('store-catalog', {
+            genre1: top6genres[0],
+            genre2: top6genres[1],
+            genre3: top6genres[2],
+            otherUserLikes: otherUserBasedRecs,
+            searchResults: userRecs,
+            genreCategories: allGenres.slice(0, 7),
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
         });
+    } catch (e) {
+        res.redirect('/error-route');
     }
-
-    const userRecs = [];
-    for (let i = 0; i < genreBasedGames.length; i++) {
-        const num = getRndInteger(1, 10);
-        userRecs.push({
-            id: genreBasedGames[i].id,
-            img: `assets/images/product-${num}-xs.jpg`,
-            title: genreBasedGames[i].name,
-            price: genreBasedGameFeatures[i].price,
-            desc: genreBasedGames[i].desc_snippet || 'No description available at the moment.',
-            genre: (genreBasedGames[i].genre && genreBasedGames[i].genre.split(',')[0]) || ('Genre N/A'),
-            rating: genreBasedGameFeatures[i].rating
-        });
-    }
-
-    res.render('store-catalog', {
-        genre1: top6genres[0],
-        genre2: top6genres[1],
-        genre3: top6genres[2],
-        otherUserLikes: otherUserBasedRecs,
-        searchResults: userRecs,
-        genreCategories: allGenres.slice(0, 7),
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
 });
 
 app.get('/store-cart', async (req, res) => {
-    const uid = cookieHandler.getUid(req.cookies);
+    try {
+        const uid = cookieHandler.getUid(req.cookies);
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
 
-    if (uid === -1) {
-        res.render('store-cart', {
-            games: [],
-            allGenres: allGenres,
-            maxUID: (await numUsers()) - 2,
-            minUID: minUID,
-        });
-    } else {
-        const games = await getUserGameRecs(uid, 10, false);
-        const gameList = games.recommendations.owned;
-        const gameData = await getGameData(gameList);
-        const gameDictList = [];
-        for (let game of gameData) {
-            gameDictList.push({
-                img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
-                title: game.name,
-                id: game.id,
-                price: (game.discount_price && game.discount_price.slice(1)) || (game.original_price && game.original_price.slice(1)) || 'N/A'
+        if (uid === -1) {
+            res.render('store-cart', {
+                games: [],
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
+            });
+        } else {
+            const games = await getUserGameRecs(uid, 10, false);
+            const gameList = games.recommendations.owned;
+            const gameData = await getGameData(gameList);
+            const gameDictList = [];
+            for (let game of gameData) {
+                gameDictList.push({
+                    img: `assets/images/product-${getRndInteger(1, 17)}-xs.jpg`,
+                    title: game.name,
+                    id: game.id,
+                    price: (game.discount_price && game.discount_price.slice(1)) || (game.original_price && game.original_price.slice(1)) || 'N/A'
+                });
+            }
+            res.render('store-cart', {
+                games: gameDictList,
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
             });
         }
-        res.render('store-cart', {
-            games: gameDictList,
-            allGenres: allGenres,
-            maxUID: (await numUsers()) - 2,
-            minUID: minUID,
-        });
+    } catch (e) {
+        res.redirect('/error-route');
     }
 });
 
 app.get('/similar-users', async (req, res) => {
-    const uid = cookieHandler.getUid(req.cookies);
-    if (uid === -1) {
-        res.render('similar-users', {
-            users: [],
-            allGenres: allGenres,
-            maxUID: (await numUsers()) - 2,
-            minUID: minUID,
-        });
-    } else {
-        const similarUsers = (await getUserUserRecs(uid, 5)).recommendations;
-        const similarUsersDetails = await similarUserDetails(similarUsers);
-        res.render('similar-users', {
-            users: similarUsersDetails,
-            allGenres: allGenres,
-            maxUID: (await numUsers()) - 2,
-            minUID: minUID,
-        });
+    try {
+        const uid = cookieHandler.getUid(req.cookies);
+
+        if (!(await checkUIDValid(uid))) {
+            res.redirect('/error-route');
+            return;
+        }
+
+        if (uid === -1) {
+            res.render('similar-users', {
+                users: [],
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
+            });
+        } else {
+            const similarUsers = (await getUserUserRecs(uid, 5)).recommendations;
+            const similarUsersDetails = await similarUserDetails(similarUsers);
+            res.render('similar-users', {
+                users: similarUsersDetails,
+                allGenres: allGenres,
+                maxUID: (await numUsers()) - 2,
+                minUID: minUID,
+            });
+        }
+    } catch (e) {
+        res.redirect('/error-route');
     }
 });
 
 app.get('/community-stats', async (req, res) => {
-    res.render('community-stats', {
-        gameCount: await numGames(),
-        gamerCount: (await numUsers()),
-        allGenres: allGenres,
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
+    try {
+        res.render('community-stats', {
+            gameCount: await numGames(),
+            gamerCount: (await numUsers()),
+            allGenres: allGenres,
+            maxUID: (await numUsers()) - 2,
+            minUID: minUID,
+        });
+    } catch (e) {
+        res.redirect('/error-route');
+    }
 });
 
 //The 404 Route
 app.get('/404', async (req, res) => {
-    res.status(404).render('404', {
-        maxUID: (await numUsers()) - 2,
-        minUID: minUID,
-    });
+    try {
+        const numUsers = await numUsers();
+        res.status(404).render('404', {
+            maxUID: (numUsers) - 2,
+            minUID: minUID,
+        });
+    } catch (e) {
+        res.redirect('/error-route');
+    }
+});
+
+app.get('/error-route', (req, res) => {
+    res.render('offline');
 });
 
 app.get('*', async (req, res) => {
     res.redirect('/404');
 });
+
 
 app.post('/activity-monitor', (req, res) => {
     try {
