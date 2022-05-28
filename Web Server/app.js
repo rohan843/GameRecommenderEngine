@@ -303,7 +303,6 @@ const checkUIDValid = async (uid) => {
                 } else {
                     return false;
                 }
-                return res;
             } catch (e) {
                 console.log(e);
                 client.close();
