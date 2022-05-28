@@ -1,10 +1,11 @@
 from pymongo import MongoClient
 from colorama import Fore, Style
+from constants import *
 
 
 class GenreList:
     def __init__(self):
-        self.client = MongoClient('mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/')
+        self.client = MongoClient(DB_CLUSTER_URL)
         self.sysDB = self.client.sysDB
         self.genres_collection = self.sysDB.genres
 
