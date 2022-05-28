@@ -51,6 +51,7 @@ from recommender import Recommender
 from validator import Validator
 from readerwriterlock import rwlock
 from genrelist import GenreList
+from constants import *
 
 app = Flask(__name__)
 
@@ -239,4 +240,6 @@ def method_not_allowed(e):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(
+        port=FLASK_PORT
+    )
