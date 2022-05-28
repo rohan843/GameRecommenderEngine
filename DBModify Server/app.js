@@ -173,6 +173,9 @@ const newUserSysData = {
 // ---- Recommender API functions ----
 const baseURL = process.env.REC_URL;
 const resetRecommenderData = (pw = 'qwerty') => {
+
+    console.log("Reset recommender called.");
+
     const url = baseURL + '/refresh_model_data';
     axios.post(url, {}, {
         headers: {
