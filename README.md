@@ -73,6 +73,8 @@ nodemon app.js
 
 > Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications).
 
+If no ports were modified, the website will be available at `http://localhost:3000/`. The 3000 here refers to the port of Web Server. If it was modified, replace it with the appropriate port.
+
 ### .env And Config Modifications
 
 There are 3 config files, as follows:
