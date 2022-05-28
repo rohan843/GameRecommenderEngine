@@ -563,6 +563,7 @@ app.get('/', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -667,6 +668,7 @@ app.get('/store-product', async (req, res) => {
             });
         }
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -760,6 +762,7 @@ app.get('/store', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -820,6 +823,7 @@ app.get('/store-catalog', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -895,6 +899,7 @@ app.get('/search', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -935,6 +940,7 @@ app.get('/store-cart', async (req, res) => {
             });
         }
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -966,6 +972,7 @@ app.get('/similar-users', async (req, res) => {
             });
         }
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -980,6 +987,7 @@ app.get('/community-stats', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
@@ -993,6 +1001,7 @@ app.get('/404', async (req, res) => {
             minUID: minUID,
         });
     } catch (e) {
+        console.log(e);
         res.redirect('/error-route');
     }
 });
