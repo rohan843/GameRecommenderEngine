@@ -70,9 +70,9 @@ loginForm.addEventListener('submit', (e) => {
         id = parseInt(uid.value);
         // uid.value = '';
     } catch (error) {
-        showToast(`Please enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
+        showToast(`Please enter valid UID between ${minUID} and ${maxUID - 1}, inclusive.`);
     }
-    if (id >= minUID && id <= maxUID) {
+    if (id >= minUID && id < maxUID) {
         setCookie('uid', id);
         showToast(`Successfully signed in as User ${id}.`);
         location.reload();
@@ -81,7 +81,7 @@ loginForm.addEventListener('submit', (e) => {
         resetNewUser.style.display = 'none';
     }
     else
-        showToast(`Please enter valid UID between ${minUID} and ${maxUID}, inclusive.`);
+        showToast(`Please enter valid UID between ${minUID} and ${maxUID - 1}, inclusive.`);
 });
 
 logoutLink.addEventListener('click', (e) => {
