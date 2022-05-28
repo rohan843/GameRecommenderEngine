@@ -22,7 +22,7 @@ function getRndInteger(min, max) {
 }
 
 // ---- Database Related Work ----
-const url = "mongodb+srv://user1:PasswordMongoDB@cluster0.ilunp.mongodb.net/";
+const url = process.env.DB_CLUSTER_URL;
 
 // Given a list of ids, it returns the mongo db query to find all those ids.
 function getMongoQuery(ids, id_col = 'id') {
@@ -298,7 +298,7 @@ for (let gid of Object.keys(genreDict)) {
 const minUID = 0;
 
 // ---- Recommender API functions ----
-const baseURL = 'http://127.0.0.1:5000';
+const baseURL = process.env.REC_URL;
 const getUserGameRecs = async (uid, k, useCache = true) => {
     const url = baseURL + '/user_game_rec';
     const cacheKeyURL = url + `?uid=${uid}&k=${k}`;
@@ -902,7 +902,7 @@ app.get('*', async (req, res) => {
 app.post('/activity-monitor', (req, res) => {
     try {
         let parsedData = JSON.parse(req.headers.body);
-        axios.post('http://localhost:4000/store_user_actions', parsedData);
+        axios.post(process.env.DB_MODIFIER_USER_ACTION_ENDPOINT, parsedData);
         res.send('Success');
     } catch (e) {
         res.send('Failure');
@@ -912,7 +912,6 @@ app.post('/activity-monitor', (req, res) => {
 // ---- Server Setup ----
 
 const PORT = parseInt(process.env.PORT);
-
 app.listen(PORT, () => {
     console.log(`Server set up to listen on port ${PORT}.`);
 });
