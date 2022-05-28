@@ -58,7 +58,7 @@ npm i cookie-parser axios node-cache
 nodemon app.js
 ```
 
-> Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications).
+> Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications). **If `nodemon` doesn't work, consider using `node app.js` instead. There might be some permissions issue with nodemon in powershell. However, it works perfectly in a git bash terminal.**
 
 21. Now, the web server is up and running, only the DBModify Server is left to be run. Open another terminal, and navigate to the repo's root folder. From here, cd into the `DBModify Server` folder.
 
@@ -71,9 +71,11 @@ npm i async-mutex
 nodemon app.js
 ```
 
-> Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications).
+> Running the command `nodemon app.js` will start the DB Modify Server. It will run at `http://localhost:4000/`. The port used here is port 4000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications). **If `nodemon` doesn't work, consider using `node app.js` instead. There might be some permissions issue with nodemon in powershell. However, it works perfectly in a git bash terminal.**
 
 If no ports were modified, the website will be available at `http://localhost:3000/`. The 3000 here refers to the port of Web Server. If it was modified, replace it with the appropriate port.
+
+> If the servers were ever to crash, in case of nodemon, write `rs` to restart, or, in case of node, `node app.js` to restart.
 
 ### .env And Config Modifications
 
