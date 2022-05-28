@@ -2,6 +2,46 @@
 
 This project has been created as a part of the Microsoft Engage submission to demonstrate the use and applications of game recommender systems, and the algorithms that go into creating them.
 
+## Steps To Run Locally
+
+Please follow these steps to run the 3 servers (architecture described below) locally. For this, python 3.9.12 was used. The OS used was Windows 11, but it should work on Windows 10 as well. The steps are:
+
+1. Install git.
+2. Clone the github repo in any folder of your chioce.
+3. Install anaconda (here, version 2.2.0 was used).
+4. Install node.
+5. Install nodemon via npm (`npm install -g nodemon`).
+6. Install python **3.9**.12 from its [official website](https://www.python.org/downloads/release/python-3912/).
+7. Open anaconda navigator.
+8. Click the *environments tab*.
+9. Click the *create* button to create a new conda environment, called `recommenderTest` for now.
+
+![anaconda environments tab](Docs/install_1.jpg)
+
+10. Once created, press the *channels* button.
+11. Press the *add* button, to add the `conda-forge` channel.
+
+![anaconda add channel](Docs/install_2.jpg)
+
+12. Press the *update channels* button.
+13. Now, from anaconda navigator, install the following packages: `pandas`, `scipy`, `numpy`, `flask`, `pymongo`, `lightfm`, `scikit-learn`.
+14. Now, go back to the home tab, keeping the environment `recommenderTest` throughout. Locate the card that states `CMD.exe Prompt`. Install and launch it, to get a terminal with the `recommenderTest` conda environment activated.
+
+![anaconda add channel](Docs/install_3.jpg)
+
+15. Once the terminal opens, go to the folder of the repo cloned in step (2). The folder will contain a folder called `RecommenderAPI Server`. Navigate to this folder fron the terminal.
+16. In the terminal, just to ensure that the pip being used is the correct one, run the command `pip -V`. If the output is like below, and the pip installed in the `recommenderTest` environment is being used, you're good to go!
+
+![pip version](Docs/install_4.jpg)
+
+> Incase this doesn't show up, manually locate the pip installation present in the `recommenderTest` environment. It will be present in a path similar to the one shown in the picture.
+
+17. Run `pip install readerwriterlock`
+18. Run `pip install "pymongo[srv]"`
+19. Now, ensure you are in the `RecommenderAPI Server` as in point (15), via the terminal that has the `recommenderTest` environment activated, as in point (14). Now, run `python main.py`. The recommender API server should begin now. It will initialize its various components. This may take some time. Please ensure this task is fully completed before proceeding.
+
+> By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`
+
 ## System Overview
 
 ### System Architecture Overview
