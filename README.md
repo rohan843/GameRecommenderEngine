@@ -155,6 +155,22 @@ To allow ease of demonstration of the recommender engine, the following things h
 
 > As it stands, there are 50 + 2 users in the database, along with 28256 games. For the users, there are users with ids 0 through 49. These are the actual users. The user id -2 represents the **new user** described in point 2 above. A user id of -1 represents the logged out state, i.e., the **null user**. Monitoring is paused if the user id is -1 (that is, if the user is logged out).
 
+Here's a list of the main features the system supports:
+
+1. Game Recommendations for a user based on user's profile (i.e., the genre and language preferences.) (Content based filtering). Primarily, the [home page](#home-page), [store page](#store-page), [catalog page](#catalog-page) show these recommendations.
+2. Game Recommendations for a user based on implicit ratings given to a game (as described [below](#user-monitoring-and-useractions)) (i.e., recommendations based on community trends). (Collaborative filtering) Primarily, the [home page](#home-page), [store page](#store-page), [catalog page](#catalog-page) show these recommendations.
+3. Showing the 3 genres the user most favours at the top, in 3 cards. The genre preferences are again calculated as shown [here](#user-monitoring-and-useractions). These cards are visible on top of most pages.
+4. Showing users who are most similar to the current user, based on how much the profiles (age, genre and language preferences) of the users match. (Content based filtering) See the [similar users page](#similar-user-page).
+5. Showing games similar to a viewed game, based on how the game profiles match (genres, langauges, rating, price). (Content based filtering) See the [game page](#game-page).
+6. Search based on genres (i.e., what games have a particular genre, or a set of genres). The results have those games which are found, based on how close the user profile and game profiles are (Content based filtering). This is available via genre cards, Category Menu, and search modal at the top of each page.
+
+> In all cases, the most relevant game/genre/user comes first.
+
+7. Monitoring the interaction (game/genre page visits, game ratings, game purchases) of the user with the system. See more info on this [here](#user-monitoring-and-useractions). Mainly, the [game page](#game-page), and the [search page](#genre-based-search) implement this (although, buying a game can be done from any page, so all pages implement monitoring for puchases).
+8. Provision of a special new user demo account (which can be reset, i.e., learnt user behaviour patterns can be refreshed), apart from the 50 existing user accounts in the database. This can be done from the [login methods](#signins) described below.
+9. Displaying of the games the user owns, in its own tab, whenever the user buys the game, with almost no delay. See [owned games page](#owned-games-page) below.
+10. Showing the size of the database in [this](#community-stats-page) page, and the editor's choice games on the [home page](#home-page) and the [store](#store-page).
+
 ## Website Navigation
 
 ### Quick Start
@@ -371,7 +387,7 @@ Preference for genre g = (no. of visits to a search page with g in search query)
 I.e., what ratio of genre based searches done by the user included genre g.
 ```
 
-Based on user actions, the values for the game preferences are calculated as:
+Based on user actions, the values for the game preferences (implicit rating) are calculated as:
 
 ```
 Preference for game g = (number of visits to g's game page + 3 * (ownership status of g (1 if owned, else 0)) + 2 * (rating given to g)) / 6
