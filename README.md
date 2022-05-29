@@ -155,6 +155,8 @@ To allow ease of demonstration of the recommender engine, the following things h
 
 > As it stands, there are 50 + 2 users in the database, along with 28256 games. For the users, there are users with ids 0 through 49. These are the actual users. The user id -2 represents the **new user** described in point 2 above. A user id of -1 represents the logged out state, i.e., the **null user**. Monitoring is paused if the user id is -1 (that is, if the user is logged out).
 
+## Main Features
+
 Here's a list of the main features the system supports:
 
 1. Game Recommendations for a user based on user's profile (i.e., the genre and language preferences.) (Content based filtering). Primarily, the [home page](#home-page), [store page](#store-page), [catalog page](#catalog-page) show these recommendations.
