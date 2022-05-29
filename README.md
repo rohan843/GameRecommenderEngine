@@ -2,6 +2,41 @@
 
 This project has been created as a part of the Microsoft Engage submission to demonstrate the use and applications of game recommender systems, and the algorithms that go into creating them.
 
+## List Of Contents
+
+1. [Steps To Run Locally](#steps-to-run-locally)
+    1. [.env And Config Modifications](#env-and-config-modifications)
+2. [System Overview](#system-overview)
+    1. [System Architecture Overview](#system-architecture-overview)
+    2. [Database Overview](#database-overview)
+    3. [Frontend Overview](#frontend-overview)
+3. [Demo Specific Featues](#demo-specific-featues)
+4. [Main Features (The Claims)](#main-features-the-claims)
+5. [Website Navigation](#website-navigation)
+    1. [Quick Start](#quick-start)
+    2. [Home Page](#home-page)
+    3. [Community Stats Page](#community-stats-page)
+    4. [Similar User Page](#similar-user-page)
+    5. [Store Page](#store-page)
+    6. [Catalog Page](#catalog-page)
+    7. [Owned Games Page](#owned-games-page)
+    8. [Game Page](#game-page)
+    9. [Signins](#signins)
+    10. [Genre Based Search](#genre-based-search)
+6. [Recommender API Server Documentation](#recommender-api-server-documentation)
+    1. [Server Specific Documentation](#server-specific-documentation)
+    2. [Recommender Module](#recommender-module)
+7. [DBModify Server Documetation](#dbmodify-server-documetation)
+    1. [New User Refresh](#new-user-refresh)
+    2. [User Monitoring and UserActions](#user-monitoring-and-useractions)
+8. [Web Server Documentation](#web-server-documentation)
+    1. [Database Related Work](#database-related-work)
+    2. [Recommender Related Work](#recommender-related-work)
+    3. [Server Routes](#server-routes)
+    4. [Caching](#caching)
+        1. [Recommender Cache](#recommender-cache)
+        2. [Database Caches](#database-caches)
+
 ## Steps To Run Locally
 
 
@@ -155,7 +190,7 @@ To allow ease of demonstration of the recommender engine, the following things h
 
 > As it stands, there are 50 + 2 users in the database, along with 28256 games. For the users, there are users with ids 0 through 49. These are the actual users. The user id -2 represents the **new user** described in point 2 above. A user id of -1 represents the logged out state, i.e., the **null user**. Monitoring is paused if the user id is -1 (that is, if the user is logged out).
 
-## Main Features
+## Main Features (The Claims)
 
 Here's a list of the main features the system supports:
 
