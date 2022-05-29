@@ -1006,6 +1006,7 @@ app.get('/404', async (req, res) => {
     }
 });
 
+// This route primarily exists to ensure any manual changes to the user ID (uid) cookie on the frontend donot cause errors in the Web Server.
 app.get('/error-route', (req, res) => {
     res.render('offline');
 });
