@@ -372,7 +372,7 @@ This server performs the following 2 tasks. They are focussed around updation of
 
 ### New User Refresh
 
-Whenever the 'Reset new user data' option is clicked, the data for the new user, i.e., the user with the user id -2 is reset to its original state. Also, a refresh request id made to the recommender to cause the refreshing of its information, to reflect the latest database state. With each new user reset, the recommender is refreshed (as it is assumed that immediate rollback to the initial state is required). This is a demo based operation, and should not be done multiple times, as it will lead to multiple recommender refreshes, with some refreshes being redundant.
+Whenever the 'Reset new user data' option is clicked, the data for the new user, i.e., the user with the user id -2 is reset to its original state. Also, a refresh request id made to the recommender to cause the refreshing of its information, to reflect the latest database state. With each new user reset, the recommender is refreshed (as it is assumed that immediate rollback to the initial state is required). This is a demo based operation, and should not be done multiple times, as it will lead to multiple recommender refreshes, with some refreshes being redundant. Note that a request to this route on the DBModify Server is made by the web server when the reset button is clicked (as shown in the section on Web Server).
 
 ### User Monitoring and UserActions
 
@@ -412,7 +412,9 @@ Multiple functions exist that allow for obtaining different types of data from t
 
 Multiple GET routes exist on the server, each corresponding to one of the many web pages of the website.
 
-One POST route also exists. This is the endpoint to which the script monitoring the user actions on the frontend sends the UserAction objects (they are forwarded to the DBModify server, as described previously).
+A POST route also exists. This is the endpoint to which the script monitoring the user actions on the frontend sends the UserAction objects (they are forwarded to the DBModify server, as described previously).
+
+Another POST route exists (`/new_user_refresh`), where the request to refresh the new user data is made whenever the demo based new user is refreshed on the website. This triggers another post request to the DBModify Server, to cause this refresh.
 
 ### Caching
 
