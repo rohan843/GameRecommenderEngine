@@ -50,41 +50,42 @@ The steps are:
 
 1. Install git.
 2. Clone the github repo in any folder of your chioce.
-3. Install anaconda (here, version 2.2.0 was used).
-4. Install node.
-5. Install nodemon via npm (`npm install -g nodemon`).
-6. Install python **3.9**.12 from its [official website](https://www.python.org/downloads/release/python-3912/).
-7. Open anaconda navigator.
-8. Click the *environments tab*.
-9. Click the *create* button to create a new conda environment, called `recommenderTest` for now. **Ensure `python 3.9` is being used in the environment.**
+3. In the 2 `.env` files present in the Web Server folder, and the DB Modify Server folder, and in the `constants.py` file in the Recommender API server folder, add the database url (of the form: 'mongodb+srv://user1:<password>@cluster0.ilunp.mongodb.net/')
+4. Install anaconda (here, version 2.2.0 was used).
+5. Install node.
+6. Install nodemon via npm (`npm install -g nodemon`).
+7. Install python **3.9**.12 from its [official website](https://www.python.org/downloads/release/python-3912/).
+8. Open anaconda navigator.
+9. Click the *environments tab*.
+10. Click the *create* button to create a new conda environment, called `recommenderTest` for now. **Ensure `python 3.9` is being used in the environment.**
 
 ![anaconda environments tab](Docs/install_1.jpg)
 
-10. Once created, press the *channels* button.
-11. Press the *add* button, to add the `conda-forge` channel.
+11. Once created, press the *channels* button.
+12. Press the *add* button, to add the `conda-forge` channel.
 
 ![anaconda add channel](Docs/install_2.jpg)
 
-12. Press the *update channels* button.
-13. Now, from anaconda navigator, install the following packages: `pandas`, `scipy`, `numpy`, `flask`, `pymongo`, `lightfm`, `scikit-learn`.
-14. Now, go back to the home tab, keeping the environment `recommenderTest` throughout. Locate the card that states `CMD.exe Prompt`. Install and launch it, to get a terminal with the `recommenderTest` conda environment activated.
+13. Press the *update channels* button.
+14. Now, from anaconda navigator, install the following packages: `pandas`, `scipy`, `numpy`, `flask`, `pymongo`, `lightfm`, `scikit-learn`.
+15. Now, go back to the home tab, keeping the environment `recommenderTest` throughout. Locate the card that states `CMD.exe Prompt`. Install and launch it, to get a terminal with the `recommenderTest` conda environment activated.
 
 ![anaconda add channel](Docs/install_3.jpg)
 
-15. Once the terminal opens, go to the folder of the repo cloned in step (2). The folder will contain a folder called `RecommenderAPI Server`. Navigate to this folder fron the terminal.
-16. In the terminal, just to ensure that the pip being used is the correct one, run the command `pip -V`. If the output is like below, and the pip installed in the `recommenderTest` environment is being used, you're good to go!
+16. Once the terminal opens, go to the folder of the repo cloned in step (2). The folder will contain a folder called `RecommenderAPI Server`. Navigate to this folder fron the terminal.
+17. In the terminal, just to ensure that the pip being used is the correct one, run the command `pip -V`. If the output is like below, and the pip installed in the `recommenderTest` environment is being used, you're good to go!
 
 ![pip version](Docs/install_4.jpg)
 
 > Incase this doesn't show up, manually locate the pip installation present in the `recommenderTest` environment. It will be present in a path similar to the one shown in the picture.
 
-17. Run `pip install readerwriterlock`
-18. Run `pip install "pymongo[srv]"`
-19. Now, ensure you are in the `RecommenderAPI Server` as in point (15), via the terminal that has the `recommenderTest` environment activated, as in point (14). Now, run `python main.py`. The recommender API server should begin now. It will initialize its various components. This may take some time. Please ensure this task is fully completed before proceeding.
+18. Run `pip install readerwriterlock`
+19. Run `pip install "pymongo[srv]"`
+20. Now, ensure you are in the `RecommenderAPI Server` as in point (15), via the terminal that has the `recommenderTest` environment activated, as in point (14). Now, run `python main.py`. The recommender API server should begin now. It will initialize its various components. This may take some time. Please ensure this task is fully completed before proceeding.
 
 > By default, the recommender API server will start on `http://127.0.0.1:5000/`. This was the localhost port 5000 in case of my laptop. The API server can also be accessed via `http://localhost:5000/`. To prevent any issues, please ensure port 5000 is free. If any problem does arise, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications) to run on a different port.
 
-20. Now that the recommender server is running, we can go to the `Web Server`. From any other terminal, from the repo folder, go to the sub folder named `Web Server`. Here, run the following commands:
+21. Now that the recommender server is running, we can go to the `Web Server`. From any other terminal, from the repo folder, go to the sub folder named `Web Server`. Here, run the following commands:
 
 ```bash
 npm i
@@ -95,9 +96,9 @@ nodemon app.js
 
 > Running the command `nodemon app.js` will start the Web Server. It will run at `http://localhost:3000/`. The port used here is port 3000. To change this port, refer to the sub section on [.env And Config Modifications](#env-and-config-modifications). **If `nodemon` doesn't work, consider using `node app.js` instead. There might be some permissions issue with nodemon in powershell. However, it works perfectly in a git bash terminal.**
 
-21. Now, the web server is up and running, only the DBModify Server is left to be run. Open another terminal, and navigate to the repo's root folder. From here, cd into the `DBModify Server` folder.
+22. Now, the web server is up and running, only the DBModify Server is left to be run. Open another terminal, and navigate to the repo's root folder. From here, cd into the `DBModify Server` folder.
 
-22. Run the following commands to get the requisite modules:
+23. Run the following commands to get the requisite modules:
 
 ```bash
 npm i
@@ -122,7 +123,7 @@ There are 3 config files, as follows:
 
 These files have the following environment variables declared. Here, they are described, along with the guidelines to change them as per needs:
 
-1. \[Mongo + SRV URL\] `DB_CLUSTER_URL`: This is the URL to the MongoDB Atlas cluster, that contains the data. Most probably, it will not have to be modified.
+1. \[Mongo + SRV URL\] `DB_CLUSTER_URL`: This is the URL to the MongoDB Atlas cluster, that contains the data. Add the database url (the 'mongodb+srv://user1:<password>@cluster0.ilunp.mongodb.net/' thing here).
 2. \[Non-Negative Integer\] `PORT`: This variable is present in the .env files for the Web Server, and for the DBModify Server. For each of those servers individually, this value provides the port where the servers must run. It is different for both servers, with the default values being `3000 for Web Server` and `4000 for DBModify Server`. If any of these ports are busy, change the corresponding port number to a free port. Please note that the 2 PORT variables, in either of the config files are for 2 different servers, and must themselves have 2 different values. (The specified port must also be free for both.)
 3. \[Non-Negative Integer\] `FLASK_PORT`: Like the `PORT` environment variable, this provides the port where the RecommenderAPI Server must run. By default, this port is `port 5000`. As the `constants.py` file is a python file, please be sure to enter a new port value, if needed, as an integer number (no 'singe quotes' or "double quotes").
 4. \[HTTP URL\] `REC_URL`: This is the URL of the RecommenderAPI Server. This environment variable is present both in Web Server's and DBModify Server's .env files. The default value is `"http://127.0.0.1:5000"`. This tells the servers that the recommender API server is running on port 5000, with the `127.0.0.1` being the `localhost` address. This exact value (the full URL with port) is received when running the Flask server as in point (19) above, in the terminal window, and can be matched and verified from there.
